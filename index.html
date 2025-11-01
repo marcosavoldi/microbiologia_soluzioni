@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elenco Domande e Risposte</title>
+    <style>
+        /* ===========================
+       Variabili CSS
+    =========================== */
+        :root {
+            --primary-color: #0073e6;
+            /* Colore originale delle domande */
+            --secondary-color: #fff;
+            --background-color: #f4f4f4;
+            --text-color: #333;
+            --font-family: Arial, sans-serif;
+            --max-width: 800px;
+            --border-radius: 5px;
+            --padding: 1rem;
+            --font-size-base: 1rem;
+            --line-height-base: 1.5;
+
+            /* Nuove variabili per migliorare la leggibilità */
+            --question-color: #003366;
+            /* Nuovo colore per le domande */
+            --answer-font-weight: bold;
+            /* Aumenta lo spessore del carattere delle risposte */
+            --answer-font-size: 1.2rem;
+            /* Aumenta la dimensione del font delle risposte */
+            --question-font-size: 1.2rem;
+            /* Aumenta la dimensione del font delle domande */
+        }
+
+        /* ===========================
+       Stili Globali
+    =========================== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            margin: 0;
+            padding-top: 70px;
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-base);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            font-size: 1.8rem;
+            margin: 0 0 1rem 0;
+            font-weight: bold;
+        }
+
+        /* ===========================
+       Barra di Navigazione Alfabetica
+    =========================== */
+        .alphabet-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: var(--primary-color);
+            padding: 0.5rem;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .alphabet-nav a {
+            color: var(--secondary-color);
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .alphabet-nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===========================
+       Barra di Ricerca a Scomparsa
+    =========================== */
+        .search-bar-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        #search-toggle {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 0.5rem;
+            font-size: 1.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        #search-bar {
+            margin-top: 0.5rem;
+        }
+
+        #search-bar input[type="text"] {
+            width: 200px;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ===========================
+       Contenitore FAQ
+    =========================== */
+        .faq-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* ===========================
+       Domande e Risposte
+    =========================== */
+        .question,
+        .answer {
+            padding: var(--padding);
+            border-radius: var(--border-radius);
+        }
+
+        .question {
+            background-color: var(--question-color);
+            /* Usa il nuovo colore */
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: var(--question-font-size);
+            /* Aumenta la dimensione del font */
+        }
+
+        .answer {
+            border: 1px solid #ddd;
+            border-top: none;
+            background-color: var(--secondary-color);
+            margin-bottom: 1rem;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            font-weight: var(--answer-font-weight);
+            /* Aumenta lo spessore del carattere */
+            font-size: var(--answer-font-size);
+            /* Aumenta la dimensione del font */
+            color: var(--text-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ===========================
+       Responsive Design
+    =========================== */
+        @media (max-width: 768px) {
+            :root {
+                --font-size-base: 1.2rem;
+                --line-height-base: 1.6;
+                --padding: 1.5rem;
+                --answer-font-size: 1.4rem;
+                --question-font-size: 1.4rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .search-bar-container input[type="text"] {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --font-size-base: 1.4rem;
+                --line-height-base: 1.7;
+                --padding: 1.5rem;
+                --answer-font-size: 1.6rem;
+                --question-font-size: 1.6rem;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .search-bar-container input[type="text"] {
+                font-size: 1.3rem;
+            }
+        }
+
+
+        /* Mantieni gli stili esistenti per .search-bar-container */
+        .search-bar-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        /* Nuova classe per il contenitore dei pulsanti */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Stili per entrambi i pulsanti */
+        #button-a,
+        #search-toggle {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 0.5rem;
+            font-size: 1.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Barra di Navigazione Alfabetica -->
+    <div class="alphabet-nav">
+        <a href="#letter-A">A</a>
+        <a href="#letter-B">B</a>
+        <a href="#letter-C">C</a>
+        <a href="#letter-D">D</a>
+        <a href="#letter-E">E</a>
+        <a href="#letter-F">F</a>
+        <a href="#letter-G">G</a>
+        <a href="#letter-H">H</a>
+        <a href="#letter-I">I</a>
+        <a href="#letter-J">J</a>
+        <a href="#letter-K">K</a>
+        <a href="#letter-L">L</a>
+        <a href="#letter-M">M</a>
+        <a href="#letter-N">N</a>
+        <a href="#letter-O">O</a>
+        <a href="#letter-P">P</a>
+        <a href="#letter-Q">Q</a>
+        <a href="#letter-R">R</a>
+        <a href="#letter-S">S</a>
+        <a href="#letter-T">T</a>
+        <a href="#letter-U">U</a>
+        <a href="#letter-V">V</a>
+        <a href="#letter-W">W</a>
+        <a href="#letter-X">X</a>
+        <a href="#letter-Y">Y</a>
+        <a href="#letter-Z">Z</a>
+    </div>
+
+    <h1>Elenco Domande e Risposte</h1>
+
+    <div class="faq-container" id="faq-container">
+        <div class="faq-item">
+            <div class="question" id="letter-A">A proposito del citoscheletro</div>
+            <div class="answer">MreB è responsabile della forma della cellula</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-A">A quale dei tre domini appartiene il Plasmodium falciparum</div>
+            <div class="answer">Eukarya</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-A">A seconda della dimensione e della posizione della spora i batteri
+                possono
+                essere definiti</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-A">Al microscopio elettronico si possono osservare</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-A">Antoni van Leeuwenhoek ha sviluppato strumenti ottici per osservazioni
+                microscopiche</div>
+            <div class="answer">nella seconda metà del Seicento</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-A">Avete isolato un nuovo microrganismo dal terreno. Avete stabilito con
+                alcuni
+                esperimenti che questo è capace di crescere a temperature comprese tra 5 e 45°C, e che la temperatura
+                ottimale
+                di crescita è 35 °C. In base a ciò classificate questo microrganismo come</div>
+            <div class="answer">due delle risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-A">Avete prelevato un campione d'acqua. Ne prendete 1 ml e lo trasferite in
+                una
+                bottiglia contenente 99 ml di soluzione fisiologica sterile. Mescolate e trasferite 1 ml dalla bottiglia
+                a una
+                provetta contenente 9 ml di fisiologica. Seminate in piastra 0,2 ml, e dopo incubazione contate 120
+                colonie. La
+                carica batterica del campione d'acqua iniziale sarà</div>
+            <div class="answer">1,2 × 105 ufc/ml</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-A">Avete seminato su piastre Petri diverse diluizioni seriali di una
+                coltura per
+                determinarne il titolo. Per questo utilizzerete preferibilmente il conteggio di quelle piastre che
+                contengono
+            </div>
+            <div class="answer">tra 30 e 300 colonie</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-C">Con il termine streptococchi si indicano</div>
+            <div class="answer">batteri tondeggianti raggruppati in catenelle</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-C">Cos'è il mesosoma</div>
+            <div class="answer">un'invaginazione della membrana plasmatica</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-D">Date le loro dimensioni, i virus possono essere osservati</div>
+            <div class="answer">al microscopio elettronico a scansione e a trasmissione</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-D">Dicesi auxotrofo un organismo che</div>
+            <div class="answer">necessita di sostanze organiche come fonte di energia e di C</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-D">Dopo la scapsidazione</div>
+            <div class="answer">nessuna delle risposte è corretta</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-D">Due specie batteriche sotto elencate producono esotossine neurotossiche
+                molto
+                potenti, quali</div>
+            <div class="answer">Clostridium tetani e Clostridium botulinum</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-D">Durante la coniugazione tra un ceppo di E. coli F+ e uno Fil</div>
+            <div class="answer">una sola elica di DNA viene trasferita dal donatore al ricevente</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-E">È possibile osservare i virus</div>
+            <div class="answer">con qualsiasi microscopio elettronico</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-G">Gli antibiotici ?-lattamici presentano, tra le loro caratteristiche,
+                anche le
+                seguenti</div>
+            <div class="answer">Nessuna affermazione precedente è corretta</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-G">Gli archea possono essere</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-G">Gli eucarioti</div>
+            <div class="answer">alternano forme unicellulari e forme pluricellulari</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-G">Gli inibitori delle proteasi</div>
+            <div class="answer">inibiscono la produzione di particelle virali mature</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-G">Gli ionofori</div>
+            <div class="answer">dissipano il gradiente protonico</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-G">Gli organismi fototrofi sono quelli che</div>
+            <div class="answer">trasformano l'energia luminosa in energia metabolicamente utile</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-H">Ho ottenuto un mutante Ara- di Shigella dysenteriae che non produce
+                nessuno
+                degli enzimi per l'utilizzazione dell'arabinosio. Trasferisco per coniugazione in questo mutante un
+                plasmide F'
+                ara che porta l'intero operone arabinosio selvatico di Shigella, incluso il gene regolatore. Il fenotipo
+                del
+                diploide parziale (merodiploide) è diventato Ara+. Quale delle seguenti ipotesi è compatibile con questa
+                osservazione</div>
+            <div class="answer">Tutte queste ipotesi sono compatibili coi risultati</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I batteri usano meccanismi di trasporto dipendenti da proteine che
+                legano
+                molecole specifiche (binding proteins) per</div>
+            <div class="answer">assumere dall'ambiente nutrienti come zuccheri e aminoacidi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I farmaci antiprotozoari</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I farmaci antivirali</div>
+            <div class="answer">hanno un ampio spettro d'azione</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I plasmidi</div>
+            <div class="answer">possono contenere geni utili</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I prioni</div>
+            <div class="answer">sono costituiti unicamente da proteine</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I probiotici hanno tutte le seguenti caratteristiche tranne</div>
+            <div class="answer">mimano l'azione degli antibiotici</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I ribosomi degli eubatteri</div>
+            <div class="answer">sono responsabili della sintesi proteica</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I terreni di arricchimento</div>
+            <div class="answer">sono sempre liquidi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I terreni solidi si inoculano mediante</div>
+            <div class="answer">tutte le risposte sono vere</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I vaccini vivi attenuati</div>
+            <div class="answer">sono microrganismi vivi ma resi innocui</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">I virus possono entrare nelle cellule tramite processi di</div>
+            <div class="answer">le risposte sono tutte corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il West Nile virus ha preso questo nome</div>
+            <div class="answer">perché è comparso la prima volta vicino al Nilo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il bactoprenolo interviene nella biosintesi</div>
+            <div class="answer">del peptidoglicano</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il ciclo di Calvin-Benson</div>
+            <div class="answer">è una via metabolica attraverso la quale molti organismi autotrofi assimilano la CO2
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il ciclo lisogeno</div>
+            <div class="answer">le risposte sono tutte corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il cromosoma batterico</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il genoma virale è</div>
+            <div class="answer">nessuna delle risposte è corretta</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il lisozima è un enzima che degrada</div>
+            <div class="answer">peptidoglicano</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il metodo più sensibile per rilevare la presenza di batteri e misurarne
+                la
+                concentrazione è</div>
+            <div class="answer">seminare il campione in terreno solido che consenta la crescita dei batteri presenti
+                (conta
+                vitale)</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il modello a mosaico fluido della membrana</div>
+            <div class="answer">nessuna delle risposte è corretta</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il primo a sospettare che le infezioni chirurgiche fossero trasferite
+                dai medici
+                ai pazienti fu</div>
+            <div class="answer">Semmelweiss</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il processo di trasduzione generalizzata richiede</div>
+            <div class="answer">che il ceppo donatore e il ceppo ricevente siano sensibili all'infezione del
+                batteriofago
+                trasducente e che la testa del fago trasducente possa incapsidare frammenti casuali del cromosoma
+                batterico
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il quorum sensing</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il riconoscimento tra i batteriofagi e i loro ospiti batterici</div>
+            <div class="answer">avviene tramite le proteine del capside</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il tempo di riduzione decimale D62 per Listeria monocytogenes è uguale a
+                3 min.
+                Ciò significa che esponendo questo batterio alla temperatura di 62 °C</div>
+            <div class="answer">il volume delle cellule diminuisce di dieci volte in tre minuti</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il terreno agar-sangue</div>
+            <div class="answer">è un terreno che permette di identificare gli streptococchi emolitici</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">Il test API</div>
+            <div class="answer">permette di identificare i batteri sulla base delle loro caratteristiche metaboliche
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">In Escherichia coli e altri batteri, la terminazione della trascrizione
+                può
+                avvenire a livello di</div>
+            <div class="answer">terminatori Rho-dipendenti e Rho-indipendenti</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">In genetica batterica il termine "competenza" si riferisce alla capacità
+                di un
+                batterio</div>
+            <div class="answer">di assumere DNA extracellulare</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">In microbiologia col temine "clone" si intende</div>
+            <div class="answer">una popolazione di cellule idealmente identiche derivate per divisione da un'unica
+                cellula
+                iniziale</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-I">In una coltura cellulare le cellule si stanno dividendo al tasso di 1
+                divisione/h. Dopo 10 ore, da 1 cellula si saranno prodotte circa</div>
+            <div class="answer">1000 cellule</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">L'acetilazione del cloramfenicolo è un esempio di</div>
+            <div class="answer">inattivazione del farmaco</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">L'elemento più abbondante in peso in una cellula batterica (considerando
+                il peso
+                secco) è</div>
+            <div class="answer">il carbonio</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">L'enfurtivide</div>
+            <div class="answer">interferisce con il cambio di conformazione della gp41</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">L'enzima RNA polimerasi è costituito da 5 subunità, alfa2, beta, beta',
+                sigma.
+                Quale tra le seguenti affermazioni è corretta</div>
+            <div class="answer">esistono subunità sigma di peso molecolare diverso</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">L'immunità acquisita</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">L'immunodepressione</div>
+            <div class="answer">le risposte sono tutte vere</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">L'inserimento di un trasposone all'interno di un gene nel cromosoma
+                batterico
+                comporta</div>
+            <div class="answer">l'inattivazione del gene</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">L'insetto vettore della malaria è</div>
+            <div class="answer">La zanzara Anopheles</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">L'occhio umano ha un limite di risoluzione di</div>
+            <div class="answer">0,1 mm</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La ?-lattamasi è un enzima che degrada</div>
+            <div class="answer">la penicillina</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La MIC è</div>
+            <div class="answer">la più bassa concentrazione battericida di antibiotico</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La capsula o glicocalice</div>
+            <div class="answer">è un rivestimento accessorio che può, spesso, essere perso o acquisito dalle cellule
+                batteriche
+                a seconda delle condizioni ambientali</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La colorazione di Albert</div>
+            <div class="answer">Evidenzia i granuli di polifosfato</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La coniugazione batterica</div>
+            <div class="answer">è un meccanismo con cui alcuni plasmidi si propagano da un batterio a un altro</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La conversione da colonia liscia a colonia rugosa che si può verificare
+                in
+                alcuni ceppi batterici è associata con</div>
+            <div class="answer">la perdita della capacità di sintesi della capsula</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La crescita apicale è tipica di</div>
+            <div class="answer">Nessuno dei microrganismi elencati</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La forza protonmotrice di membrana si instaura grazie a</div>
+            <div class="answer">flusso di elettroni attraverso la catena di trasporto di elettroni nella membrana</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La lunghezza del genoma di E. coli in Mbp (milioni di paia di basi) è di
+                circa
+            </div>
+            <div class="answer">4,6 Mbp</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La maggior parte dei microrganismi associati al corpo umano sono</div>
+            <div class="answer">batteri</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La malaria</div>
+            <div class="answer">si trasmette tramite un insetto vettore</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La mancanza dell'enzima superossido dismutasi può spiegare come mai
+                alcuni
+                batteri siano</div>
+            <div class="answer">sensibili all'ossigeno</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La membrana batterica</div>
+            <div class="answer">le risposte sono tutte corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La membrana plasmatica dei batteri</div>
+            <div class="answer">le risposte sono tutte corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La posizione dei geni in una mappa convenzionale di Escherichia coli si
+                indica
+            </div>
+            <div class="answer">in minuti</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La prevalenza</div>
+            <div class="answer">è il numero di casi totali di una malattia in un determinato momento</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La pseudomureina è</div>
+            <div class="answer">un ?(1-3)glicoside presente nella parete degli Archaea</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La reazione biochimica catalizzata dalla DNA primasi è uguale a quella
+                catalizzata dalla</div>
+            <div class="answer">RNApolimerasi (DNA-dipendente)</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La replicazione dei virus a DNA</div>
+            <div class="answer">avviene sempre nel nucleo tranne che per i poxvirus</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La replicazione del DNA circolare</div>
+            <div class="answer">può essere sia bidirezionale che unidirezionale</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La resistenza dei ceppi MRSA è dovuta a</div>
+            <div class="answer">la produzione di PBP resistenti ai beta-lattamici</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La resistenza intrinseca agli antibiotici può derivare da</div>
+            <div class="answer">mancanza del bersaglio</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La riattivazione del virus di Eppstein-Barr</div>
+            <div class="answer">causa il linfoma di Burkitt</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La riattivazione dell'Herpes zoster</div>
+            <div class="answer">causa il fuoco di Sant'Antonio</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La riattivazione è un fenomeno legato</div>
+            <div class="answer">all'infezione latente</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La sequenza "ter"</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La sequenza Shine-Dalgarno</div>
+            <div class="answer">è presente in tutti i procarioti</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La temperatura e il tempo necessari e sufficienti per la sterilizzazione
+                in
+                autoclave sono</div>
+            <div class="answer">121 °C, 15 min</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La tindalizzazione</div>
+            <div class="answer">serve per sterilizzare gli alimenti</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La vaccinazione antirabbica fu sperimentata per la prima volta</div>
+            <div class="answer">da Louis Pasteur nella seconda metà dell'Ottocento</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">La variazione antigenica</div>
+            <div class="answer">permette di eludere le difese dell'organismo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Lazzaro Spallanzani 1729-1799</div>
+            <div class="answer">contribuì a confutare la teoria della generazione spontanea dei microrganismi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Le cellule durante la fase Log</div>
+            <div class="answer">crescono in modo esponenziale</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Le endospore</div>
+            <div class="answer">sono molto resistenti al calore</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Le endotossine sono costituite da</div>
+            <div class="answer">lpide A</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Le esospore dei batteri</div>
+            <div class="answer">sono forme di resistenza prodotte in condizioni ambientali sfavorevoli</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Le fasi di formazione del biofilm sono</div>
+            <div class="answer">adesione, formazione della microcolonia, biofilm maturo, sfaldamento</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Le infezioni virali possono essere</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Le piante superiori spesso assorbono l'azoto dal suolo sotto forma di
+            </div>
+            <div class="answer">nitrati</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Le polimixine</div>
+            <div class="answer">distruggono l'integrità della membrana</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Le proteine Sec</div>
+            <div class="answer">permettono di esportare proteine dall'interno all'esterno</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">Lo zolfo è un elemento indispensabile per le cellule perché è un
+                costituente
+                integrale</div>
+            <div class="answer">delle proteine</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-L">la parete mureinica dei batteri</div>
+            <div class="answer">costituisce un involucro che impedisce la lisi osmotica della cellula</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-M">Molti antibiotici agiscono in modo molto selettivo sulle cellule
+                batteriche
+                grazie a caratteristiche importanti che distinguono i batteri dagli altri organismi. Due di queste
+                caratteristiche sono</div>
+            <div class="answer">la composizione della parete cellulare e la struttura dei ribosomi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-M">Molti batteri Gram-negativi sono insensibili alla penicillina G. La
+                struttura
+                cellulare che li protegge è</div>
+            <div class="answer">la membrana esterna</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-M">Molti batteri contengono molecole di DNA circolare (o anche lineare) più
+                piccole
+                del cromosoma batterico, dette</div>
+            <div class="answer">plasmidi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-N">Negli Archaea, il primo aminoacido che viene incorporato durante la
+                sintesi di
+                un polipeptide è</div>
+            <div class="answer">la metionina</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-N">Negli eucarioti i flagelli</div>
+            <div class="answer">sono fatti da 9 coppie di microtubuli periferici più due centrali</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-N">Nei procarioti il cromosoma tende ad aggregarsi in una regione centrale
+                distinta
+                detta</div>
+            <div class="answer">nucleoide</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-N">Nel nostro organismo sono presenti batteri commensali in tutti i
+                seguenti tratti
+                tranne</div>
+            <div class="answer">sangue</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-N">Nel peptidoglicano dei batteri Gram-positivi, il ponte interpeptidico
+                unisce tra
+                loro</div>
+            <div class="answer">catene laterali peptidiche adiacenti</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-N">Nel peptidoglicano di alcuni batteri Gram+ (per es., Staphylococcus), il
+                ponte
+                interpeptidico è costituito da</div>
+            <div class="answer">un oligopeptide di L-Gly</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-N">Nella cellula batterica sono presenti 4 tipi di macromolecole: proteine
+                (A),
+                lipidi e lipopolisaccaridi (B), acidi nucleici (C), polisaccaridi (D). Metterle in ordine crescente
+                dalla
+                quantità minore a quella maggiore</div>
+            <div class="answer">D, B, C, A</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-N">Nella colorazione di Gram i batteri Gram-negativi</div>
+            <div class="answer">si colorano di rosso</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-N">Nella mureina batterica, N-acetil glucosammina e N-acetil muramico sono
+                uniti da
+            </div>
+            <div class="answer">legame ?-1,4 glucosidico</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-O">Oltre all'ATP, nelle cellule batteriche ci sono altri composti da alto
+                contenuto
+                energetico con funzioni specifiche. Il dTTP</div>
+            <div class="answer">interviene nella biosintesi dei lipopolisaccaridi della parete batterica</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-P">Per "batteri prostecati" si intendono batteri</div>
+            <div class="answer">dotati di un peduncolo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-P">Per "fosforilazione a livello di substrato" si intende</div>
+            <div class="answer">la produzione di ATP (da ADP + Pi) accoppiata a una reazione chimica esoergonica</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-P">Per "fotosintesi anossigenica" si intende un tipo di fotosintesi che
+            </div>
+            <div class="answer">non produce ossigeno</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-P">Per "sterilizzazione" in microbiologia s'intende</div>
+            <div class="answer">qualsiasi trattamento che elimini tutte le forme di vita presenti</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-P">Per la sintesi di proteine virali di un virus a RNA ss a polarità
+                negativa</div>
+            <div class="answer">il genoma viene retrotrascritto in DNA, che poi viene trascritto e tradotto</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Qual ruolo è svolto principalmente e generalmente dai batteri
+                chemioorganotrofi
+                in un ecosistema</div>
+            <div class="answer">Decomposizione e trasformazione di composti organici</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Qual è il limite superiore di ingrandimento del microscopio ottico?
+            </div>
+            <div class="answer">2000x</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Qual è l'ordine esatto delle fasi in una coltura in batch</div>
+            <div class="answer">Lag, Log, Plateau, Declino</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Qual è la differenza tra disinfettanti e antisettici?</div>
+            <div class="answer">Gli antisettici non danneggiano (troppo) i tessuti biologici</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale dei seguenti composti NON potrebbe essere compreso tra i prodotti
+                finali
+                di processi fermentativi?</div>
+            <div class="answer">piruvato</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale delle seguenti affermazioni non è vera?</div>
+            <div class="answer">I flagelli batterici sono presenti solo nei batteri respiranti (che sono capaci di
+                produrre
+                forza proton motrice tramite respirazione)</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra i seguenti NON è un componente dell'immunità innata</div>
+            <div class="answer">linfociti T8</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra i seguenti antibiotici agisce sulla subunità 30 S</div>
+            <div class="answer">tetraciclina</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra i seguenti antibiotici non agisce sulla DNAgirasi</div>
+            <div class="answer">tetraciclina</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra i seguenti componenti non fa parte del complesso di inizio
+                della
+                traduzione nei procarioti</div>
+            <div class="answer">subunità 50 S</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra i seguenti geni è stato utilizzato per primo per l'analisi
+                della
+                percentuale di similarità tra organismi</div>
+            <div class="answer">citocromo c</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra i seguenti meccanismi NON è utilizzato per la riproduzione
+                microbica
+            </div>
+            <div class="answer">partenogenesi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra i seguenti metodi è un metodo diretto per la misurazione della
+                crescita cellulare</div>
+            <div class="answer">determinazione del peso secco</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra i seguenti è l'ordine corretto delle fasi di un generico ciclo
+                replicativo virale</div>
+            <div class="answer">adsorbimento e penetrazione, scapsidazione, produzione proteine virali, replicazione del
+                genoma,
+                assemblaggio e liberazione dei virioni</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra i seguenti è l'ordine gerarchico decrescente corretto</div>
+            <div class="answer">ordine, famiglia, genere, specie, ceppo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra le affermazioni seguenti è vera</div>
+            <div class="answer">Il parassitismo è un tipo di simbiosi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra le caratteristiche seguenti della spora è dovuta al
+                dipicolinato di
+                calcio</div>
+            <div class="answer">Le risposte sono tutte vere</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra le funzioni sottoelencate solo è propria solo dei pili</div>
+            <div class="answer">trasferimento di DNA</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra le seguenti affermazioni è ERRATA. Il genoma di un virus non
+                può
+                essere</div>
+            <div class="answer">RNA ds polarità positiva</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra le seguenti caratteristiche non può essere osservata con le
+                preparazioni a fresco</div>
+            <div class="answer">inclusioni citoplasmatiche</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra le seguenti non è una funzione della membrana</div>
+            <div class="answer">protezione dalla lisi osmotica</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra le seguenti non è una struttura facoltativa della cellula
+                procariotica
+            </div>
+            <div class="answer">parete</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra le seguenti strutture è comune a eucarioti e archea</div>
+            <div class="answer">presenza di introni nel DNA</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra quelle sottoelencate non è un esempio di relazione
+                mutualistica</div>
+            <div class="answer">Interazione tra Legionella e un polmone</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra queste affermazioni è errata</div>
+            <div class="answer">le infezioni croniche possono essere trasformanti</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra queste infezioni NON si trasmette in modo indiretto</div>
+            <div class="answer">epatite B</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra queste patologie non è causata da prioni</div>
+            <div class="answer">Alzheimer</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra questi geni non è essenziale per la vita di un batterio</div>
+            <div class="answer">Beta-lattamasi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quale tra questi suffissi indica la famiglia</div>
+            <div class="answer">-viridae</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quali dei seguenti composti non si trovano normalmente nella membrana
+                citoplasmatica degli Archaea</div>
+            <div class="answer">Diesteri del glicerolo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quali dei seguenti composti si ritrovano normalmente come costituenti
+                della
+                membrana plasmatica dei Bacteria</div>
+            <div class="answer">opanoidi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quali tra i seguenti composti sono normalmente presenti nella membrana
+                esterna
+                dei Bacteria Gram-negativi?</div>
+            <div class="answer">lipopolissacaridi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quali tra le proteine elencate non ha sede nella membrana</div>
+            <div class="answer">DNA polimerasi</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-Q">Quali tra queste caratteristiche non è comune a tutti i microrganismi
+                patogeni
+            </div>
+            <div class="answer">latenza</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-S">Se un mammifero viene a contatto con un batterio patogeno</div>
+            <div class="answer">l'eventuale sviluppo di una malattia infettiva dipenderà da diversi fattori sia del
+                batterio sia
+                dell'animale</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-S">Si definiscono saprofiti</div>
+            <div class="answer">organismi che vivono e si riproducono su materiale in decomposizione</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-S">Si parla di pandemia quando</div>
+            <div class="answer">nessuna delle risposte è corretta</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-S">Soluzioni di sostanze termolabili possono essere convenientemente
+                sterilizzate
+            </div>
+            <div class="answer">per filtrazione</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-S">Sono criteri di classificazione utilizzati nel Bergey's manual</div>
+            <div class="answer">tutte le risposte sono corrette</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-T">Tra le funzioni sottoelencate solo una non è propria delle fimbrie</div>
+            <div class="answer">trasferimento di DNA</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-T">Tutte le tappe del ciclo replicativo sono potenziali bersagli della
+                terapia
+                antivirale tranne</div>
+            <div class="answer">sintesi proteica</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-T">Tutti i termini sottoelencati sono esempi di interazioni simbiotiche
+                negative
+                tranne</div>
+            <div class="answer">commensalismo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-T">Tutti questi elementi possono far parte del genoma di una cellula
+                batterica
+                tranne</div>
+            <div class="answer">nucleolo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un batterio che può vivere a un pH compreso tra 9 e 11</div>
+            <div class="answer">è alcalofilo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un batterio che può vivere a un pH superiore a 12</div>
+            <div class="answer">è estremofilo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un batterio osmotollerante</div>
+            <div class="answer">cresce anche in soluzioni a concentrazione di soluti relativamente elevata</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un enzima ad attività antibatterica che ritroviamo nella saliva, lacrime
+                e altri
+                fluidi corporei è</div>
+            <div class="answer">il lisozima</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un epitopo</div>
+            <div class="answer">può essere lineare o conformazionale</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un esempio di "mutazione selezionabile" potrebbe essere una mutazione
+                che rende
+            </div>
+            <div class="answer">Salmonella typhimurium resistente a penicillina</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un microrganismo che può crescere a 0 °C, ha l'optimum di crescita a 10
+                °C ed è
+                incapace di crescere a 30 °C, è definito</div>
+            <div class="answer">psicrofilo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un mutante di E. coli con fenotipo Ara-, His-, TetR (Ara = arabinosio;
+                His =
+                istidina; Tet = tetraciclina) può crescere su un terreno minerale contenente, oltre a tutti i sali
+                necessari
+            </div>
+            <div class="answer">glucosio, istidina e tetraciclina</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un operone batterico è regolato negativamente. Ciò significa che</div>
+            <div class="answer">la sua trascrizione è inibita da un repressore</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un organismo che ricava energia metabolica dall'ossidazione del nitrito
+                si dice
+            </div>
+            <div class="answer">chemiolitotrofo</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un organismo con metabolismo fermentativo di norma produce ATP</div>
+            <div class="answer">accoppiando la sintesi di ATP ad altre reazioni biochimiche esoergoniche</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un organismo fotoautotrofo</div>
+            <div class="answer">usa la luce come forma di energia e l'anidride carbonica come fonte di carbonio</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Un terreno per batteri chemioeterotrofi deve contenere</div>
+            <div class="answer">acqua, Sali, glucosio, peptoni</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Una coltura in batch mima</div>
+            <div class="answer">la crescita batterica in seguito alla morte di un animale</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Una coltura in continuo mima</div>
+            <div class="answer">nessuna delle precedenti</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Una comunità microbica</div>
+            <div class="answer">è costituita da un insieme di popolazioni diverse</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">Una delle seguenti affermazioni è falsa. Le esotossine</div>
+            <div class="answer">fanno parte del rivestimento esterno del batterio che le produce</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">un micelio</div>
+            <div class="answer">è un aggregato di ife</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-U">un organismo che può crescere tra 0 e 5°C e ha una temperatura ottimale
+                compresa
+                tra 20 e 40 è</div>
+            <div class="answer">psicrotollerante</div>
+        </div>
+
+        <!-- Continua con il resto delle domande -->
+        <!-- ... -->
+    </div>
+
+    <!-- Contenitore per entrambi i pulsanti -->
+    <div class="search-bar-container">
+        <div class="button-container">
+            <button id="button-a" onclick="window.location.href='aperte.html'">A</button>
+            <button id="search-toggle">&#128269;</button>
+        </div>
+        <div id="search-bar" class="hidden">
+            <input type="text" id="search-input" placeholder="Cerca una domanda...">
+        </div>
+    </div>
+
+    <script>
+        // Toggle visibilità della barra di ricerca
+        document.getElementById('search-toggle').addEventListener('click', function () {
+            const searchBar = document.getElementById('search-bar');
+            searchBar.classList.toggle('hidden');
+        });
+
+        // Funzionalità di ricerca
+        document.getElementById('search-input').addEventListener('input', function () {
+            const searchQuery = this.value.toLowerCase();
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('.question').innerText.toLowerCase();
+                const answer = item.querySelector('.answer').innerText.toLowerCase();
+
+                if (question.includes(searchQuery) || answer.includes(searchQuery)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        });
+
+        // Assegna automaticamente gli ID alle domande (opzionale)
+        (function () {
+            const faqItems = document.querySelectorAll('.faq-item .question');
+            const lettersFound = {};
+
+            faqItems.forEach(question => {
+                const firstLetter = question.innerText.trim().charAt(0).toUpperCase();
+                if (!lettersFound[firstLetter]) {
+                    lettersFound[firstLetter] = true;
+                    question.id = 'letter-' + firstLetter;
+                }
+            });
+        })();
+    </script>
+
+</body>
+
+</html>

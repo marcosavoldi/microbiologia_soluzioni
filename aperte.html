@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elenco Risposte</title>
+    <style>
+        /* ===========================
+       Variabili CSS
+    =========================== */
+        :root {
+            --primary-color: #0073e6;
+            /* Colore originale delle domande */
+            --secondary-color: #fff;
+            --background-color: #f4f4f4;
+            --text-color: #333;
+            --font-family: Arial, sans-serif;
+            --max-width: 800px;
+            --border-radius: 5px;
+            --padding: 1rem;
+            --font-size-base: 1rem;
+            --line-height-base: 1.5;
+
+            /* Nuove variabili per migliorare la leggibilità */
+            --question-color: #003366;
+            /* Nuovo colore per le domande */
+            --answer-font-weight: bold;
+            /* Aumenta lo spessore del carattere delle risposte */
+            --answer-font-size: 1.2rem;
+            /* Aumenta la dimensione del font delle risposte */
+            --question-font-size: 1.2rem;
+            /* Aumenta la dimensione del font delle domande */
+        }
+
+        /* ===========================
+       Stili Globali
+    =========================== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            margin: 0;
+            padding-top: 70px;
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-base);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            font-size: 1.8rem;
+            margin: 0 0 1rem 0;
+            font-weight: bold;
+        }
+
+        /* ===========================
+       Barra di Navigazione Alfabetica
+    =========================== */
+        .alphabet-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: var(--primary-color);
+            padding: 0.5rem;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .alphabet-nav a {
+            color: var(--secondary-color);
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .alphabet-nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===========================
+       Barra di Ricerca a Scomparsa
+    =========================== */
+        .search-bar-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        #search-toggle {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 0.5rem;
+            font-size: 1.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        #search-bar {
+            margin-top: 0.5rem;
+        }
+
+        #search-bar input[type="text"] {
+            width: 200px;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ===========================
+       Pulsante per tornare alla Index
+    =========================== */
+        #back-button {
+            position: fixed;
+            bottom: 80px;
+            /* Posizionato sopra il pulsante della lente */
+            right: 20px;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 0.5rem;
+            font-size: 1.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* ===========================
+       Contenitore Risposte
+    =========================== */
+        .answer-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* ===========================
+       Risposte
+    =========================== */
+        .answer-item {
+            padding: var(--padding);
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            background-color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-weight: var(--answer-font-weight);
+            font-size: var(--answer-font-size);
+            color: var(--text-color);
+        }
+
+        /* ===========================
+       Responsive Design
+    =========================== */
+        @media (max-width: 768px) {
+            :root {
+                --font-size-base: 1.2rem;
+                --line-height-base: 1.6;
+                --padding: 1.5rem;
+                --answer-font-size: 1.4rem;
+                --question-font-size: 1.4rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .search-bar-container input[type="text"] {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --font-size-base: 1.4rem;
+                --line-height-base: 1.7;
+                --padding: 1.5rem;
+                --answer-font-size: 1.6rem;
+                --question-font-size: 1.6rem;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .search-bar-container input[type="text"] {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Barra di Navigazione Alfabetica -->
+    <div class="alphabet-nav">
+        <a href="#letter-A">A</a>
+        <a href="#letter-B">B</a>
+        <a href="#letter-C">C</a>
+        <a href="#letter-D">D</a>
+        <a href="#letter-E">E</a>
+        <a href="#letter-F">F</a>
+        <a href="#letter-G">G</a>
+        <a href="#letter-H">H</a>
+        <a href="#letter-I">I</a>
+        <a href="#letter-J">J</a>
+        <a href="#letter-K">K</a>
+        <a href="#letter-L">L</a>
+        <a href="#letter-M">M</a>
+        <a href="#letter-N">N</a>
+        <a href="#letter-O">O</a>
+        <a href="#letter-P">P</a>
+        <a href="#letter-Q">Q</a>
+        <a href="#letter-R">R</a>
+        <a href="#letter-S">S</a>
+        <a href="#letter-T">T</a>
+        <a href="#letter-U">U</a>
+        <a href="#letter-V">V</a>
+        <a href="#letter-W">W</a>
+        <a href="#letter-X">X</a>
+        <a href="#letter-Y">Y</a>
+        <a href="#letter-Z">Z</a>
+    </div>
+
+    <h1>Elenco Risposte</h1>
+
+    <div class="answer-container" id="answer-container">
+        <div class="faq-item">
+            <div class="question" id="letter-a">A cosa ci si riferisce con il termine host range. Da cosa è determinato?
+            </div>
+            <div class="question">A cosa ci si riferisce con il termine host range. Da cosa è determinato?</div>
+            <div class="answer">Il termine "host range" indica l’insieme delle specie, o dei tipi cellulari, che un
+                virus è in
+                grado di infettare. È determinato dalla specificità tra i recettori presenti sulla cellula ospite e le
+                proteine
+                virali (antirecettori) che riconoscono e si legano a questi recettori.<br>Questa interazione definisce
+                quali
+                cellule e tessuti un virus può colpire e quanto sia selettivo nei confronti dell’ospite.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">A cosa servono le proteine presenti nell'envelope di un virus?</div>
+            <div class="question">A cosa servono le proteine presenti nell'envelope di un virus?</div>
+            <div class="answer">Le proteine dell’envelope servono a riconoscere e legarsi ai recettori specifici sulla
+                cellula
+                ospite, permettendo al virus di entrare nella cellula e dare inizio all’infezione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">A quale caratterisica si fa riferimento quando si dice che un organismo è prototrofo?
+            </div>
+            <div class="question">A quale caratterisica si fa riferimento quando si dice che un organismo è prototrofo?
+            </div>
+            <div class="answer">Un prototrofo è in grado di sintetizzare da solo tutti i composti organici essenziali a
+                partire
+                da fonti semplici, senza bisogno di nutrienti preformati.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-c">Che azione hanno gli ionofori?</div>
+            <div class="question">Che azione hanno gli ionofori?</div>
+            <div class="answer">Gli ionofori sono molecole che trasportano ioni attraverso la membrana cellulare,
+                alterando il
+                normale equilibrio ionico della cellula. Possono formare canali o legare e trasportare ioni come sodio,
+                potassio
+                o calcio, rendendo la membrana più permeabile. Questo provoca la perdita del gradiente elettrochimico,
+                necessario per la produzione di ATP e per molte funzioni cellulari. La cellula non riesce più a
+                mantenere
+                l’equilibrio interno e muore.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Che differenza c'è tra disinfezione e sterilizzazione?</div>
+            <div class="question">Che differenza c'è tra disinfezione e sterilizzazione?</div>
+            <div class="answer">La sterilizzazione è un processo che elimina tutti i microrganismi, comprese le spore
+                batteriche, da un oggetto o ambiente, rendendolo completamente privo di vita microbica. La disinfezione
+                riduce o
+                elimina solo i microrganismi patogeni ma non garantisce la distruzione delle spore. Quindi la
+                sterilizzazione
+                assicura una completa inattivazione di ogni forma microbica, mentre la disinfezione serve a ridurre il
+                rischio
+                di infezioni su superfici o strumenti, senza raggiungere la totale sterilità.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Che differenza c'è tra metaboliti primari e secondari? In quale fase della crescita
+                vengono
+                sintetizzati?</div>
+            <div class="question">Che differenza c'è tra metaboliti primari e secondari? In quale fase della crescita
+                vengono
+                sintetizzati?</div>
+            <div class="answer">I metaboliti primari sono essenziali per la crescita della cellula (es. amminoacidi,
+                nucleotidi)
+                e vengono prodotti durante la fase esponenziale. I metaboliti secondari (es. antibiotici) non sono
+                essenziali
+                per la crescita e si producono soprattutto nella fase stazionaria.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Che differenza c'è tra scissione binaria e gemmazione?</div>
+            <div class="question">Che differenza c'è tra scissione binaria e gemmazione?</div>
+            <div class="answer">Nella scissione binaria, la cellula si divide in due cellule figlie uguali, tipico dei
+                batteri.
+                Nella gemmazione, invece, si forma una piccola protuberanza (gemma) che cresce fino a staccarsi, dando
+                origine a
+                una cellula più piccola della cellula madre, tipico di alcuni batteri e lieviti.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Che differenza c'è tra simbiosi e commensalismo?</div>
+            <div class="question">Che differenza c'è tra simbiosi e commensalismo?</div>
+            <div class="answer">La simbiosi è una relazione stretta e duratura tra due organismi di specie diverse, in
+                cui
+                entrambi traggono beneficio (per esempio, batteri intestinali che producono vitamine utili all’uomo).Il
+                commensalismo, invece, è una forma di associazione in cui solo uno dei due organismi trae vantaggio,
+                mentre
+                l’altro non subisce né danno né beneficio (per esempio, batteri della pelle che si nutrono di sostanze
+                presenti
+                senza danneggiare l’ospite).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Che differenza c'è tra un organismo parassita e un saprofita?</div>
+            <div class="question">Che differenza c'è tra un organismo parassita e un saprofita?</div>
+            <div class="answer">Il parassita vive a spese di un altro organismo vivo, danneggiandolo. Il saprofita si
+                nutre di
+                materia organica morta o in decomposizione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Che differenza c'è tra un terreno di arricchimento e uno di identificazione?</div>
+            <div class="question">Che differenza c'è tra un terreno di arricchimento e uno di identificazione?</div>
+            <div class="answer">Il terreno di arricchimento favorisce la crescita di certi batteri, quello di
+                identificazione
+                permette di riconoscerli grazie a reazioni specifiche.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Che differenza c'è tra un'epidemia e una pandemia?</div>
+            <div class="question">Che differenza c'è tra un'epidemia e una pandemia?</div>
+            <div class="answer">Un’epidemia è la diffusione rapida di una malattia infettiva in una determinata area o
+                popolazione in un periodo limitato di tempo. Una pandemia invece è un’epidemia che si estende a più
+                Paesi o
+                continenti, coinvolgendo gran parte della popolazione mondiale.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Che tipo di associazione c'è tra Rhizobium e le radici delle leguminose?</div>
+            <div class="question">Che tipo di associazione c'è tra Rhizobium e le radici delle leguminose?</div>
+            <div class="answer">È una simbiosi mutualistica: il batterio Rhizobium vive nei noduli radicali e fissa
+                l’azoto
+                atmosferico in una forma assimilabile dalla pianta, che in cambio fornisce zuccheri e ambiente protetto
+                al
+                batterio .</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Chi è il medico responsabile dell'introduzione dell'antisepsi in sala operatoria e
+                qual è
+                stato il primo disinfettante utilizzato?</div>
+            <div class="question">Chi è il medico responsabile dell'introduzione dell'antisepsi in sala operatoria e
+                qual è
+                stato il primo disinfettante utilizzato?</div>
+            <div class="answer">Il medico è Joseph Lister. Introdusse l'antisepsi in chirurgia disinfettando strumenti e
+                ambiente operatorio perchè intuì che molte infezioni post-operatorie erano causate da microrganismi
+                presenti
+                nell' ambiente. Usò come primo disinfettante l’acido fenico (fenolo).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Come possono essere suddivisi gli organismi sulla base della temperatura di crescita
+                ottimale?
+            </div>
+            <div class="question">Come possono essere suddivisi gli organismi sulla base della temperatura di crescita
+                ottimale?
+            </div>
+            <div class="answer">Psicrofili: 0-15°C; Mesofili: 20–45°C; Termofili: 45°-70C; Ipertermofili: &gt;80°C.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Come si riproducono i batteri miceliari?</div>
+            <div class="question">Come si riproducono i batteri miceliari?</div>
+            <div class="answer">I batteri miceliari si riproducono per frammentazione del micelio, producendo cellule
+                figlie che
+                si staccano e crescono indipendentemente.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è e a cosa serve l'origine di replicazione?</div>
+            <div class="question">Cos'è e a cosa serve l'origine di replicazione?</div>
+            <div class="answer">È una sequenza specifica del DNA da cui inizia la duplicazione. Permette il reclutamento
+                dei
+                complessi proteici necessari alla replicazione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è il potere di risoluzione? Elenca i valori per l'occhio umano e per i diversi
+                microscopi?
+            </div>
+            <div class="question">Cos'è il potere di risoluzione? Elenca i valori per l'occhio umano e per i diversi
+                microscopi?
+            </div>
+            <div class="answer">Il potere di risoluzione è la capacità di distinguere due punti molto vicini come
+                separati. Più
+                è alto più i dettagli si riescono a vedere. L' occhio umano vede fino a 0,1 mm, il microscopio ottico
+                permette
+                di vedere fino a 0,2 micrometri quindi sono visibili cellule e batteri mentre il microscopio elettronico
+                è molto
+                più potente, quello a trasmissione arriva fino a 0,2 nanometri e quello a scansione fino a 10 nanometri
+                quindi
+                permette di vedere batteri, virus e dettagli interni (ultrastrutture).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è il quorum sensing?</div>
+            <div class="question">Cos'è il quorum sensing?</div>
+            <div class="answer">Il quorum sensing è un meccanismo di comunicazione tra batteri basato sul rilascio e la
+                rilevazione di molecole segnale. Quando la densità della popolazione aumenta, queste molecole si
+                accumulano e
+                attivano geni specifici, permettendo ai batteri di coordinare comportamenti collettivi come la
+                formazione di
+                biofilm o la produzione di tossine.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è il tempo di generazione?</div>
+            <div class="question">Cos'è il tempo di generazione?</div>
+            <div class="answer">Il tempo di generazione è il tempo necessario a una cellula batterica per dividersi o in
+                una
+                popolazione, il tempo necessario perché il numero di cellule raddoppi. Varia a seconda della specie e
+                delle
+                condizioni ambientali.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è il tempo di riduzione decimale?</div>
+            <div class="question">Cos'è il tempo di riduzione decimale?</div>
+            <div class="answer">È il tempo necessario a ridurre del 90% la popolazione batterica a una data temperatura.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è l'herd immunity e qual è la sua utilità?</div>
+            <div class="question">Cos'è l'herd immunity e qual è la sua utilità?</div>
+            <div class="answer">L’herd immunity (immunità di gregge) è la protezione indiretta che si crea quando una
+                grande
+                parte della popolazione è immune a una malattia infettiva, grazie al vaccino (&gt;95%).In questo modo il
+                patogeno non riesce più a diffondersi facilmente, proteggendo anche chi non è vaccinato. È utile perché
+                riduce o
+                interrompe la circolazione del microbo nella comunità, fino a poter eradicare alcune malattie (es.
+                vaiolo,
+                poliomielite in molte aree).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è la MIC?</div>
+            <div class="question">Cos'è la MIC?</div>
+            <div class="answer">La MIC (Minima Concentrazione Inibente) è la più bassa concentrazione di un antibiotico
+                in grado
+                di impedire la crescita visibile di un batterio dopo un periodo di incubazione, generalmente di 18–24
+                ore.
+                Rappresenta un parametro fondamentale in microbiologia clinica, poiché consente di valutare la
+                sensibilità o la
+                resistenza di un microrganismo nei confronti di un determinato antibiotico. In base al valore della MIC,
+                un
+                batterio può essere classificato come sensibile, intermedio o resistente, permettendo così di scegliere
+                il
+                trattamento più efficace.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è la chemiotassi?</div>
+            <div class="question">Cos'è la chemiotassi?</div>
+            <div class="answer">È la capacità di muoversi dei batteri in risposta a stimoli chimici. Possono muoversi
+                verso
+                sostanze attrattive (es. nutrienti) o allontanarsi da quelle repulsive (es. tossine) usando i flagelli.
+                Quindi
+                consente al batterio di orientarsi e sopravvivere meglio.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è la coniugazione batterica?</div>
+            <div class="question">Cos'è la coniugazione batterica?</div>
+            <div class="answer">La coniugazione batterica è un meccanismo di trasferimento diretto di DNA tra due
+                cellule
+                batteriche. Avviene quando un batterio donatore, che possiede un plasmide coniugativo (come il plasmide
+                F),
+                forma un pilo sessuale che si collega a un batterio ricevente. Attraverso questo ponte, una copia del
+                plasmide
+                viene trasferita nella cellula ricevente, che può così acquisire nuove caratteristiche genetiche, come
+                la
+                resistenza agli antibiotici.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è la crescita diauxica?</div>
+            <div class="question">Cos'è la crescita diauxica?</div>
+            <div class="answer">La crescita diauxica avviene quando nel mezzo ci sono due diverse fonti di carbonio. I
+                batteri
+                usano prima quella più facilmente metabolizzabile (es. glucosio) e solo dopo il suo esaurimento, passano
+                alla
+                seconda, producendo una doppia curva di crescita con una breve fase di arresto intermedia per adattarsi
+                al nuovo
+                substrato.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è la fase di eclisse dell'infezione virale?</div>
+            <div class="question">Cos'è la fase di eclisse dell'infezione virale?</div>
+            <div class="answer">È la fase che inizia con la scapsidazione: il genoma virale è libero nella cellula, ma
+                non si
+                vedono ancora virioni maturi. Durante l’eclisse non ci sono particelle virali infettive rilevabili, che
+                compariranno solo al termine dell’assemblaggio.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è un antigene?</div>
+            <div class="question">Cos'è un antigene?</div>
+            <div class="answer">Un antigene è una sostanza riconosciuta come estranea dal sistema immunitario e capace
+                di
+                stimolare una risposta immunitaria. Gli antigeni vengono riconosciuti da linfociti che producono
+                anticorpi
+                specifici o attivano altre cellule immunitarie per neutralizzarlo o distruggerlo. Una parte specifica
+                dell'antigene, chiamata epitopo, si lega a un recettore (di un linfocita B o T o a un anticorpo). Questo
+                avvia
+                la risposta immunitaria mirata per neutralizzare o eliminare la minaccia.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è un vaccino?</div>
+            <div class="question">Cos'è un vaccino?</div>
+            <div class="answer">Un vaccino è una preparazione che contiene microrganismi patogeni inattivati, attenuati
+                o loro
+                componenti, in grado di stimolare il sistema immunitario senza provocare la malattia. Dopo la
+                somministrazione,
+                il sistema immunitario riconosce l’antigene presente nel vaccino e produce anticorpi specifici e cellule
+                della
+                memoria. In questo modo, se la persona entrerà in contatto con lo stesso agente patogeno in futuro,
+                l’organismo
+                sarà già preparato a reagire in modo rapido ed efficace, prevenendo o attenuando l’infezione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è un'infezione opportunistica?</div>
+            <div class="question">Cos'è un'infezione opportunistica?</div>
+            <div class="answer">È un'infezione causata da microrganismi normalmente innocui, che diventano patogeni in
+                caso di
+                sistema immunitario indebolito, come nei pazienti HIV o trapiantati.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è un'infezione trasformante?</div>
+            <div class="question">Cos'è un'infezione trasformante?</div>
+            <div class="answer">Un’infezione trasformante è un’infezione in cui il microrganismo altera il comportamento
+                della
+                cellula ospite, inducendola a moltiplicarsi in modo anomalo. In pratica, il patogeno (spesso un virus
+                oncogeno
+                es. HPV) modifica il DNA o i meccanismi di controllo della cellula, favorendo la trasformazione tumorale
+                e lo
+                sviluppo di cellule neoplastiche.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è una colonia e quali caratteristiche può avere?</div>
+            <div class="question">Cos'è una colonia e quali caratteristiche può avere?</div>
+            <div class="answer">È un insieme di cellule originate da un solo batterio. Può variare per forma, colore,
+                margine,
+                rilievo e dimensione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cos'è una zoonosi?</div>
+            <div class="question">Cos'è una zoonosi?</div>
+            <div class="answer">È una malattia infettiva che si trasmette dagli animali all’uomo, direttamente o tramite
+                vettori. Esempi: rabbia, brucellosi, leptospirosi, toxoplasmosi.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa caratterizza il ciclo di un fago temperato?</div>
+            <div class="question">Cosa caratterizza il ciclo di un fago temperato?</div>
+            <div class="answer">Il ciclo di un fago temperato è caratterizzato dalla lisogenia, cioè l'integrazione del
+                DNA
+                virale (profago) nel genoma batterico.Il DNA del fago può rimanere latente per un tempo indefinito,
+                replicandosi
+                insieme al DNA batterico senza distruggere la cellula.In condizioni specifiche, il profago può
+                attivarsi, uscire
+                dal genoma batterico e avviare un ciclo litico, portando alla produzione di nuovi fagi e alla lisi della
+                cellula.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa si indica con il termine colorazione differenziale? Fà un'esempio?</div>
+            <div class="question">Cosa si indica con il termine colorazione differenziale? Fà un'esempio?</div>
+            <div class="answer">La colorazione differenziale è una tecnica che utilizza coloranti per distinguere
+                diversi tipi
+                di microrganismi o strutture cellulari. Questo metodo si basa sul diverso comportamento delle cellule
+                nei
+                confronti dei coloranti, legato alla composizione della loro parete. Un esempio è la colorazione di
+                Gram, che
+                divide i batteri in Gram positivi (parete spessa di peptidoglicano quindi trattiene il color viola) e
+                Gram
+                negativi (parete sottile e membrana esterna, perdono il viola e diventano color rosso).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa si intende con l'affermazione che il codice genetico è universale. Esistono delle
+                eccezioni?</div>
+            <div class="question">Cosa si intende con l'affermazione che il codice genetico è universale. Esistono delle
+                eccezioni?</div>
+            <div class="answer">Il codice genetico è universale perché gli stessi codoni indicano gli stessi amminoacidi
+                in
+                quasi tutti gli organismi viventi, dai batteri all’uomo. Questo mostra che tutti hanno una origine
+                comune.
+                Esistono però alcune eccezioni, come nei mitocondri o in certi microrganismi, dove alcuni codoni hanno
+                un
+                significato diverso.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa si intende per bassa fedeltà replicativa e cosa comporta per un virus come l'HIV?
+            </div>
+            <div class="question">Cosa si intende per bassa fedeltà replicativa e cosa comporta per un virus come l'HIV?
+            </div>
+            <div class="answer">La bassa fedeltà replicativa indica una scarsa precisione nella copia del genoma virale,
+                con
+                un’elevata frequenza di errori durante la replicazione. Nel caso dell’HIV, questo comporta la formazione
+                di
+                numerose varianti del virus, rendendo più difficile il controllo dell’infezione da parte del sistema
+                immunitario
+                e favorendo la comparsa di resistenze ai farmaci antivirali.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa si intende per crescita in batch?</div>
+            <div class="question">Cosa si intende per crescita in batch?</div>
+            <div class="answer">La crescita in batch è un tipo di coltura microbica in cui i batteri vengono fatti
+                crescere in
+                un sistema chiuso, cioè in un volume fisso di terreno nutritivo senza aggiungere nuovi nutrienti né
+                rimuovere i
+                prodotti di scarto. La crescita avviene fino all’esaurimento delle risorse, seguendo fasi ben definite
+                che
+                riflettono l’adattamento e la sopravvivenza della popolazione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa si intende per stato di aggregazione e in cosa questo differisce da un tessuto?
+            </div>
+            <div class="question">Cosa si intende per stato di aggregazione e in cosa questo differisce da un tessuto?
+            </div>
+            <div class="answer">Lo stato di aggregazione indica il modo in cui le cellule batteriche rimangono unite
+                dopo la
+                divisione, formando coppie, catene o ammassi. A differenza dei tessuti degli organismi pluricellulari,
+                queste
+                cellule non sono collegate da strutture complesse e non svolgono funzioni coordinate. Si tratta quindi
+                solo di
+                un’associazione fisica di cellule, non di un vero tessuto organizzato.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa si intende quando si dice che un organismo è estremofilo?</div>
+            <div class="question">Cosa si intende quando si dice che un organismo è estremofilo?</div>
+            <div class="answer">È un organismo che vive in condizioni estreme (temperatura, pH, salinità, pressione) che
+                sarebbero inospitali per la maggior parte degli esseri viventi.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa sono e a cosa servono i carbossisomi?</div>
+            <div class="question">Cosa sono e a cosa servono i carbossisomi?</div>
+            <div class="answer">I carbossisomi sono microcompartimenti presenti in alcuni batteri autotrofi e
+                cianobatteri.
+                Contengono enzimi come la RuBisCO, essenziali per la fissazione del carbonio. Servono a concentrare
+                l’anidride
+                carbonica e migliorare l’efficienza del ciclo di Calvin.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa sono gli enzimi di restrizione e qual è la loro naturale funzione?</div>
+            <div class="question">Cosa sono gli enzimi di restrizione e qual è la loro naturale funzione?</div>
+            <div class="answer">Gli enzimi di restrizione sono proteine di origine batterica che riconoscono sequenze
+                specifiche
+                di DNA e le tagliano in punti precisi. Nei batteri hanno la funzione naturale di difesa contro il DNA
+                estraneo,
+                come quello dei virus batteriofagi, distruggendolo prima che possa danneggiare la cellula. Ogni enzima
+                riconosce
+                una breve sequenza di basi (spesso palindromica) e produce tagli che generano estremità “cohesive” o
+                “blunt”. In
+                biotecnologia, questi enzimi sono strumenti fondamentali per tagliare e ricombinare il DNA in modo
+                controllato.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa sono i probiotici?</div>
+            <div class="question">Cosa sono i probiotici?</div>
+            <div class="answer">I probiotici sono microrganismi vivi, principalmente batteri o lieviti, che quando
+                assunti in
+                quantità adeguate apportano benefici alla salute dell’organismo ospite. Agiscono aiutando a mantenere o
+                ristabilire l’equilibrio del microbiota intestinale, migliorando la digestione, rafforzando le difese
+                immunitarie e contrastando la crescita di microrganismi patogeni. Es. Lactobacillus.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa sono i trasportatori ABC?</div>
+            <div class="question">Cosa sono i trasportatori ABC?</div>
+            <div class="answer">I trasportatori ABC sono proteine di membrana che permettono il passaggio di sostanze
+                dentro o
+                fuori dalla cellula batterica usando energia dell' ATP (anche contro gradiente di concentrazione). Hanno
+                tre
+                componenti: una proteina che lega il substrato, una transmembrana che forma il canale e una proteina che
+                idrolizza l’ATP per fornire energia. Servono anche per espellere farmaci.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa sono incidenza e prevalenza?</div>
+            <div class="question">Cosa sono incidenza e prevalenza?</div>
+            <div class="answer">Incidenza: numero di nuovi casi di una malattia in un dato periodo. Prevalenza: numero
+                totale di
+                casi (nuovi e preesistenti) in un dato momento. Servono per valutare la diffusione e l’andamento di una
+                malattia
+                in una popolazione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa sono le ARS di Saccharomyces e a cosa servono?</div>
+            <div class="question">Cosa sono le ARS di Saccharomyces e a cosa servono?</div>
+            <div class="answer">Le ARS (Autonomously Replicating Sequences) sono sequenze di DNA che agiscono come
+                origini di
+                replicazione nei lieviti.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa sono le ROS e quali enzimi le inattivano?</div>
+            <div class="question">Cosa sono le ROS e quali enzimi le inattivano?</div>
+            <div class="answer">Le ROS (specie reattive dell’ossigeno) sono molecole tossiche prodotte durante il
+                metabolismo.
+                Queste sostanze possono danneggiare DNA, proteine e membrane cellulari. Per difendersi, le cellule
+                producono
+                enzimi antiossidanti che le inattivano.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa sono microbiota e microbioma?</div>
+            <div class="question">Cosa sono microbiota e microbioma?</div>
+            <div class="answer">Il microbiota è l’insieme di tutti i microrganismi (batteri, virus, funghi e archea) che
+                vivono
+                in un determinato ambiente, come l’intestino umano. Il microbioma è l’insieme del patrimonio genetico di
+                questi
+                microrganismi. Lo studio del microbioma consente di comprendere le funzioni del microbiota, il suo
+                equilibrio e
+                il suo ruolo nella salute dell’organismo ospite.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa succede nei noduli radicali delle leguminose?</div>
+            <div class="question">Cosa succede nei noduli radicali delle leguminose?</div>
+            <div class="answer">Nei noduli si trovano batteri azotofissatori che trasformano l’azoto atmosferico (N₂) in
+                ammoniaca (NH₃), disponibile per la pianta.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Cosa vuol dire che la membrana batterica ha funzione di accumulo e generazione di
+                energia?
+            </div>
+            <div class="question">Cosa vuol dire che la membrana batterica ha funzione di accumulo e generazione di
+                energia?
+            </div>
+            <div class="answer">Significa che essa partecipa ai processi che producono ATP, la principale fonte
+                energetica della
+                cellula. Nei batteri, che non possiedono mitocondri, la membrana plasmatica ospita gli enzimi della
+                catena di
+                trasporto degli elettroni, che creano un gradiente di protoni tra interno ed esterno della cellula.
+                Questo
+                gradiente genera forza proton-motrice utilizzata per sintetizzare ATP.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-d">Descrivere differenze a affinità tra ribosomi dei Bacteria, degli
+                Eucarya e
+                degli Archea?</div>
+            <div class="question">Descrivere differenze a affinità tra ribosomi dei Bacteria, degli Eucarya e degli
+                Archea?
+            </div>
+            <div class="answer">I Bacteria e gli Archaea hanno ribosomi 70S, quindi simili nella struttura, ma con
+                proteine e
+                sequenze di rRNA diverse. Gli Eucarya, invece, possiedono ribosomi 80S nel citoplasma. A livello
+                molecolare, i
+                ribosomi degli Archaea risultano più simili a quelli eucariotici che a quelli batterici, anche se le
+                dimensioni
+                restano uguali a quelle dei batteri</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivere il processo di scissione binaria?</div>
+            <div class="question">Descrivere il processo di scissione binaria?</div>
+            <div class="answer">La scissione binaria inizia con la duplicazione del DNA e l’allungamento della cellula.
+                Si forma
+                un setto trasversale grazie alla proteina FtsZ, che separa i due cromosomi replicati.La membrana e la
+                parete si
+                invaginano, dividendo il citoplasma e formando due cellule figlie identiche. Ogni nuova cellula riceve
+                una copia
+                completa del DNA e può iniziare un nuovo ciclo di crescita.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivere la composizione di una cellula batterica?</div>
+            <div class="question">Descrivere la composizione di una cellula batterica?</div>
+            <div class="answer">La cellula batterica è una cellula procariote, cioè priva di un vero nucleo e di
+                organuli
+                delimitati da membrane. È composta da una membrana plasmatica, che regola gli scambi con l’esterno e da
+                una
+                parete cellulare, che conferisce forma e protezione. All’interno si trova il citoplasma, che contiene
+                ribosomi e
+                il materiale genetico, costituito da un’unica molecola circolare di DNA localizzata nel nucleoide.
+                Alcuni
+                batteri possiedono anche strutture accessorie come flagelli, che permettono il movimento, fimbrie, che
+                favoriscono l’adesione e capsule, che li proteggono dall’ambiente esterno.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivere la struttura di una particella virale elencandone le componenti essenziali?
+            </div>
+            <div class="question">Descrivere la struttura di una particella virale elencandone le componenti essenziali?
+            </div>
+            <div class="answer">Una particella virale, detta anche virione, è formata da pochi elementi essenziali. Al
+                centro
+                contiene l’acido nucleico, che rappresenta il genoma virale e può essere DNA o RNA, a singolo o doppio
+                filamento. Questo materiale genetico è racchiuso in un capside, una struttura proteica che lo protegge e
+                ne
+                consente la trasmissione. In molti virus, attorno al capside è presente anche un envelope (involucro
+                lipidico)
+                derivato dalla membrana della cellula ospite, in cui si trovano proteine o glicoproteine necessarie per
+                riconoscere e infettare le cellule bersaglio.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivere le caratteristiche di un terreno di isolamento?</div>
+            <div class="question">Descrivere le caratteristiche di un terreno di isolamento?</div>
+            <div class="answer">È solido e permette di separare singole colonie per studiarne le caratteristiche
+                morfologiche.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivere le fasi di una crescita in batch?</div>
+            <div class="question">Descrivere le fasi di una crescita in batch?</div>
+            <div class="answer">La crescita in batch presenta quattro fasi principali:Fase di latenza (lag): i batteri
+                si
+                adattano al nuovo ambiente ma non si dividono ancora.Fase esponenziale (log): la crescita è rapida e
+                costante,
+                con divisioni regolari.Fase stazionaria: i nutrienti diminuiscono e il numero di nuove cellule bilancia
+                quello
+                delle cellule morte.Fase di morte: i nutrienti si esauriscono e le sostanze tossiche aumentano, portando
+                alla
+                diminuzione della popolazione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivi brevemente il ciclo vitale del parassita Giardia lamblia?</div>
+            <div class="question">Descrivi brevemente il ciclo vitale del parassita Giardia lamblia?</div>
+            <div class="answer">L’infezione inizia quando una persona ingerisce le cisti, presenti in acqua o alimenti
+                contaminati da feci infette. Le cisti sono resistenti e possono sopravvivere a lungo nell’ambiente
+                esterno.
+                Arrivate nell’intestino tenue, le cisti si trasformano in trofozoiti, la forma attiva e mobile del
+                parassita. I
+                trofozoiti si attaccano alla mucosa intestinale, dove si moltiplicano per divisione binaria e causano i
+                sintomi
+                della giardiasi (come diarrea e malassorbimento). Una parte dei trofozoiti, mentre attraversano
+                l’intestino
+                crasso, si trasforma nuovamente in cisti, che vengono eliminate con le feci. Queste cisti possono poi
+                contaminare nuove persone, chiudendo così il ciclo vitale.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivi brevemente le somiglianze e le differenze tra batteri e archea?</div>
+            <div class="question">Descrivi brevemente le somiglianze e le differenze tra batteri e archea?</div>
+            <div class="answer">I batteri e gli archea sono entrambi procarioti, quindi privi di nucleo e organuli
+                delimitati da
+                membrane, e si riproducono per scissione binaria. Però hanno differenze: nei batteri la parete cellulare
+                contiene peptidoglicano, mentre negli archea è assente e sostituita da altre sostanze.<br>Dal punto di
+                vista
+                genetico e biochimico, gli archea sono più simili agli eucarioti, con enzimi e meccanismi di
+                trascrizione e
+                traduzione più complessi, mentre i batteri hanno sistemi più semplici.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivi i possibili effetti di una mutazione nel gene per la crescentina?</div>
+            <div class="question">Descrivi i possibili effetti di una mutazione nel gene per la crescentina?</div>
+            <div class="answer">La crescentina è una proteina che conferisce ai batteri (es. Caulobacter crescentus) la
+                caratteristica forma curva o a virgola. Se il gene che la codifica subisce una mutazione, la proteina
+                può non
+                essere prodotta o risultare non funzionale così il batterio perde la sua tipica curvatura e assume una
+                forma
+                rettilinea. Quindi, la mutazione non compromette la sopravvivenza, ma altera la morfologia del
+                microrganismo.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivi il vaccino per la poliomielite di Sabin e Salk, che differenza c'è tra i due?
+                quale
+                si usa al giorno d'oggi?</div>
+            <div class="question">Descrivi il vaccino per la poliomielite di Sabin e Salk, che differenza c'è tra i due?
+                quale
+                si usa al giorno d'oggi?</div>
+            <div class="answer">Il vaccino di Salk contiene virus inattivati e viene somministrato per iniezione. Il
+                vaccino di
+                Sabin invece usa virus attenuati e si assume per via orale. Entrambi stimolano una buona protezione e
+                hanno
+                permesso di eliminare la poliomielite in molti Paesi. Oggi si utilizza una combinazione dei due vaccini,
+                per
+                ottenere una protezione più completa e duratura.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivi l'organizzazione generale di un plasmide e degli elementi che lo
+                caratterizzano?
+            </div>
+            <div class="question">Descrivi l'organizzazione generale di un plasmide e degli elementi che lo
+                caratterizzano?
+            </div>
+            <div class="answer">Il plasmide è una molecola di DNA circolare a doppio filamento, indipendente dal
+                cromosoma
+                batterico e localizzata nel citoplasma. È presente in molti batteri e anche in alcuni eucarioti, come i
+                lieviti.
+                Al suo interno si trovano diversi elementi: l’origine di replicazione, che rappresenta il punto di
+                inizio della
+                duplicazione; i geni accessori, che possono conferire vantaggi come la resistenza agli antibiotici; i
+                siti di
+                restrizione, utili al taglio e alla manipolazione del DNA; i geni per la coniugazione, che permettono il
+                trasferimento tra batteri; e infine elementi mobili, che favoriscono la variabilità genetica.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivi la struttura di un flagello batterico a partire dall'inserzione nella
+                cellula?</div>
+            <div class="question">Descrivi la struttura di un flagello batterico a partire dall'inserzione nella
+                cellula?</div>
+            <div class="answer">Il flagello batterico è una lunga struttura filamentosa che consente al batterio di
+                muoversi. È
+                formato da tre parti principali: Alla base si trova il corpo basale, ancorato alla membrana e alla
+                parete
+                cellulare, che funge da motore, contiene anelli e proteine che permettono la rotazione. Un gancio che
+                collega il
+                corpo basale al filamento. Il filamento che è la parte più lunga e visibile, costituita dalla proteina
+                flagellina. Il movimento del flagello, alimentato dal flusso di protoni attraverso la membrana, permette
+                al
+                batterio di spostarsi nel mezzo liquido.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivi le differenze tra esospore ed endospore?</div>
+            <div class="question">Descrivi le differenze tra esospore ed endospore?</div>
+            <div class="answer">Le endospore e le esospore sono entrambe strutture di resistenza, ma differiscono per
+                origine e
+                funzione. Le endospore si formano all’interno della cellula batterica (es. Bacillus e Clostridium)
+                quando le
+                condizioni ambientali diventano sfavorevoli. Sono molto resistenti a calore, raggi UV e agenti chimici e
+                servono
+                per sopravvivere a lungo fino al ritorno di condizioni favorevoli. Le esospore invece si formano
+                all’esterno
+                della cellula, per gemmazione o frammentazione, e sono meno resistenti; servono alla riproduzione o alla
+                dispersione, non alla sopravvivenza in ambienti estremi.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Descrivi le diverse tappe del ciclo ligeno?</div>
+            <div class="question">Descrivi le diverse tappe del ciclo ligeno?</div>
+            <div class="answer">Il ciclo litico comprende: 1) Adsorbimento del virus alla cellula; 2) Penetrazione del
+                genoma
+                virale; 3) Scapsidazione (liberazione del genoma); 4) Sintesi delle proteine virali; 5) Replicazione del
+                genoma;
+                6) Assemblaggio e maturazione dei virioni; 7) Liberazione dei virioni per lisi (virus nudi) o gemmazione
+                (virus
+                con envelope).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-e">Elenca e commenta brevemente la funzione di tutte le strutture esterne
+                alla
+                parete cellulare?</div>
+            <div class="question">Elenca e commenta brevemente la funzione di tutte le strutture esterne alla parete
+                cellulare?
+            </div>
+            <div class="answer">Capsula: strato che avvolge la cellula, favorisce l' adesione e protegge dalla
+                fagocitosi.
+                Flagelli: movimento. Fimbrie e pili: adesione, scambio genetico. Sono tutte strutture accessorie,
+                presenti solo
+                in alcuni batteri.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Elenca le fasi del processo di replicazione virale?</div>
+            <div class="question">Elenca le fasi del processo di replicazione virale?</div>
+            <div class="answer">Il ciclo di replicazione virale avviene in più fasi successive: Adsorbimento – il virus
+                si lega
+                ai recettori specifici sulla superficie della cellula ospite. Penetrazione – il virus o il suo genoma
+                entra
+                nella cellula, per endocitosi o fusione dell’envelope con la membrana. Scapsidamento – il capside si
+                apre e il
+                genoma virale viene liberato nel citoplasma o nel nucleo. Replicazione – il virus sfrutta i meccanismi
+                della
+                cellula per replicare il proprio genoma e sintetizzare le proteine virali. Assemblaggio – i nuovi
+                componenti
+                virali (genoma e capside) vengono assemblati in nuove particelle. Maturazione e liberazione – i nuovi
+                virioni
+                vengono rilasciati all’esterno della cellula, per lisi (nei virus nudi) o per gemmazione (nei virus con
+                envelope).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-f">Fa uno schema che comprenda tutti i microrganismi dando una breve
+                definizione o
+                elencando in modo sintetico le caratteristiche?</div>
+            <div class="question">Fa uno schema che comprenda tutti i microrganismi dando una breve definizione o
+                elencando in
+                modo sintetico le caratteristiche?</div>
+            <div class="answer">I microrganismi sono esseri viventi visibili solo al microscopio e si dividono in
+                acellulari e
+                cellulari. I microrganismi acellulari comprendono i virus, parassiti obbligati che si replicano solo
+                dentro una
+                cellula e contengono DNA o RNA; i prioni, proteine infettive senza acidi nucleici, responsabili di
+                alcune
+                malattie; e i viroidi, piccoli RNA che infettano solo le piante. I microrganismi cellulari invece si
+                dividono in
+                procarioti ed eucarioti: tra i procarioti troviamo i batteri, unicellulari senza nucleo, che possono
+                essere
+                utili o patogeni, e gli archea, simili ai batteri ma adattati ad ambienti estremi. Tra gli eucarioti ci
+                sono i
+                protozoi, unicellulari e mobili, spesso patogeni; i funghi, non fotosintetici, con parete cellulare
+                (lieviti e
+                muffe); e le alghe, fotosintetiche, unicellulari o pluricellulari, che producono gran parte
+                dell’ossigeno
+                terrestre.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-i">I batteri possono essere dotati di ciglia e flagelli. Spiega le
+                differenze tra
+                queste strutture sia in termini di struttura che in termini di funzione?</div>
+            <div class="question">I batteri possono essere dotati di ciglia e flagelli. Spiega le differenze tra queste
+                strutture sia in termini di struttura che in termini di funzione?</div>
+            <div class="answer">Le ciglia sono più corte e numerose e servono per aderire alle superfici o ad altre
+                cellule,
+                favorendo la colonizzazione o lo scambio di materiale genetico. I flagelli invece sono più lunghi e meno
+                numerosi e hanno funzione di movimento, permettendo al batterio di spostarsi. I flagelli sono formati da
+                una
+                proteina chiamata flagellina e ruotano mentre le ciglia non sono coinvolte nel movimento.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">I batteri zolfo-ossidanti possono essere chemiolitoeterotrofi. A cosa si riferisce
+                questa
+                definizione?</div>
+            <div class="question">I batteri zolfo-ossidanti possono essere chemiolitoeterotrofi. A cosa si riferisce
+                questa
+                definizione?</div>
+            <div class="answer">Significa che usano composti inorganici come fonte di energia (chemio-lito-) ma
+                necessitano di
+                composti organici per il carbonio (-eterotrofi).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">I virus vengono ritenuti organismi viventi da alcuni scienziati mentre gli altri li
+                classificano tra i non viventi. Spiega quali sono le caratteristiche che li</div>
+            <div class="question">I virus vengono ritenuti organismi viventi da alcuni scienziati mentre gli altri li
+                classificano tra i non viventi. Spiega quali sono le caratteristiche che li</div>
+            <div class="answer">accomunano agli uni e agli altri e quelle che sono peculiari solo dei virus?<br>I virus
+                sono
+                simili ai viventi perché contengono acidi nucleici e si moltiplicano, ma lo fanno solo in cellule
+                ospiti. Non
+                hanno metabolismo autonomo, non crescono né rispondono all’ambiente: per questo sono considerati non
+                viventi .
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">In E. coli il cromosoma è lungo circa 1,5 mm mentre le dimensioni cellulari sono
+                nell'ordine
+                dei micron. Descrivi brevemente l'organizzazione che gli permette di essere contenuto in uno spazio così
+                piccolo?</div>
+            <div class="question">In E. coli il cromosoma è lungo circa 1,5 mm mentre le dimensioni cellulari sono
+                nell'ordine
+                dei micron. Descrivi brevemente l'organizzazione che gli permette di essere contenuto in uno spazio così
+                piccolo?</div>
+            <div class="answer">Il DNA è superavvolto grazie a proteine strutturali e topoisomerasi, organizzandosi in
+                un
+                complesso compatto chiamato nucleoide.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">In Escherichia coli sono presenti diversi fattori sigma. Spiegare la funzione del
+                fattore
+                sigma e come mai ce n'è più di uno?</div>
+            <div class="question">In Escherichia coli sono presenti diversi fattori sigma. Spiegare la funzione del
+                fattore
+                sigma e come mai ce n'è più di uno?</div>
+            <div class="answer">Il fattore sigma guida l’RNA polimerasi verso promotori specifici. Ogni tipo di sigma
+                riconosce
+                promotori diversi, utili in condizioni differenti.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">In che modo un vaccino verso una malattia come il morbillo può proteggere anche da
+                altre
+                malattie?</div>
+            <div class="question">In che modo un vaccino verso una malattia come il morbillo può proteggere anche da
+                altre
+                malattie?</div>
+            <div class="answer">Il vaccino per il morbillo rafforza il sistema immunitario generale e riduce
+                l’immunosoppressione causata dall’infezione naturale, prevenendo così anche altre infezioni secondarie.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">In che senso e perché l'intestino può essere paragonato a un bioreattore?</div>
+            <div class="question">In che senso e perché l'intestino può essere paragonato a un bioreattore?</div>
+            <div class="answer">L’intestino può essere paragonato a un bioreattore perché al suo interno avvengono
+                numerose
+                reazioni biochimiche grazie all’attività metabolica del microbiota intestinale. Come in un bioreattore
+                ci sono
+                condizioni controllate di temperatura, pH e nutrienti che permettono la crescita e l’attività dei
+                microrganismi.
+                Questi batteri degradano e fermentano i residui alimentari, producendo vitamine, acidi grassi e gas, e
+                contribuiscono alla digestione e alla salute dell’ospite.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">In cosa consiste il processo di mineralizzazione?</div>
+            <div class="question">In cosa consiste il processo di mineralizzazione?</div>
+            <div class="answer">È la degradazione della sostanza organica da parte dei microrganismi, che libera
+                nutrienti
+                inorganici come NH₄⁺, PO₄³⁻ e CO₂, rendendoli disponibili per le piante .</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">In cosa consiste la repressione da cataboliti?</div>
+            <div class="question">In cosa consiste la repressione da cataboliti?</div>
+            <div class="answer">La repressione da cataboliti è un meccanismo di regolazione in cui la presenza di
+                glucosio
+                inibisce l’espressione di altri geni catabolici, come quelli coinvolti nella degradazione del lattosio.
+                In
+                questo modo il batterio utilizza prima la fonte di energia più efficiente, cioè il glucosio, e attiva
+                solo
+                successivamente gli altri sistemi metabolici. Si tratta quindi di un meccanismo di risparmio energetico
+                che
+                permette alla cellula di ottimizzare l’uso delle proprie risorse.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">In cosa consiste un'infezione latente. Fai almeno un paio di esempi?</div>
+            <div class="question">In cosa consiste un'infezione latente. Fai almeno un paio di esempi?</div>
+            <div class="answer">Un’infezione latente è un’infezione in cui il microrganismo rimane nell’organismo in
+                forma
+                inattiva, senza causare sintomi per un certo periodo di tempo. Durante la latenza, il patogeno non si
+                replica
+                attivamente, ma può riattivarsi in particolari condizioni, come stress, immunodepressione o altre
+                malattie,
+                provocando una ricaduta dell’infezione. Virus dell’Herpes simplex (HSV): dopo la prima infezione, rimane
+                nei
+                gangli nervosi e può riattivarsi causando herpes labiale. Virus della Varicella-Zoster: dopo la
+                varicella resta
+                latente nei gangli nervosi e può riattivarsi anni dopo come fuoco di Sant’Antonio (herpes zoster).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">In cosa differiscono i batteri chemiotrofi dai fototrofi?</div>
+            <div class="question">In cosa differiscono i batteri chemiotrofi dai fototrofi?</div>
+            <div class="answer">I batteri chemiotrofi ottengono energia da reazioni chimiche, mentre i fototrofi usano
+                la luce
+                come fonte di energia.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">In una coltura in batch, quali sono i fattori responsabili della morte dei batteri?
+            </div>
+            <div class="question">In una coltura in batch, quali sono i fattori responsabili della morte dei batteri?
+            </div>
+            <div class="answer">In una coltura in batch, la morte dei batteri avviene perché il sistema è chiuso, cioè
+                non
+                vengono aggiunti nuovi nutrienti né rimossi i prodotti di scarto. Con il tempo, i nutrienti si
+                esauriscono,
+                aumentano le sostanze tossiche prodotte dal metabolismo e cambia il pH del mezzo, rendendo l’ambiente
+                sfavorevole alla crescita. Di conseguenza, la popolazione entra nella fase di morte, in cui il numero di
+                cellule
+                che muoiono supera quello delle cellule che si dividono.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-l">Le proteine citoscheletriche nei batteri. Descrivi le funzioni?</div>
+            <div class="question">Le proteine citoscheletriche nei batteri. Descrivi le funzioni?</div>
+            <div class="answer">Anche i batteri possiedono un citoscheletro formato da proteine simili a quelle degli
+                eucarioti,
+                che servono a mantenere la forma e a organizzare i processi cellulari.La FtsZ, analoga alla tubulina,
+                forma un
+                anello durante la divisione cellulare e coordina la scissione del setto.La MreB, simile all’actina,
+                determina la
+                forma allungata dei batteri a bastoncello e guida la sintesi della parete.La crescentina, presente nei
+                batteri
+                curvi, regola la curvatura della cellula.Insieme, queste proteine assicurano forma, crescita e divisione
+                regolare della cellula batterica.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Le spore vengono prodotte durante la fase di crescita stazionaria, prova a spiegarne
+                la
+                ragione?</div>
+            <div class="question">Le spore vengono prodotte durante la fase di crescita stazionaria, prova a spiegarne
+                la
+                ragione?</div>
+            <div class="answer">Durante la fase stazionaria perché in questo momento le condizioni ambientali diventano
+                sfavorevoli alla crescita batterica. Alcuni batteri formano spore per sopravvivere a condizioni
+                ambientali
+                sfavorevoli come mancanza di nutrienti, calore o disidratazione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-p">Per cosa codificano i geni accessori di un batterio e dove sono
+                localizzati?
+            </div>
+            <div class="question">Per cosa codificano i geni accessori di un batterio e dove sono localizzati?</div>
+            <div class="answer">I geni accessori non sono essenziali per la sopravvivenza in condizioni normali, ma
+                offrono
+                vantaggi selettivi (es. resistenza agli antibiotici). Si trovano spesso su plasmidi o in isole
+                genomiche.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Per quale motivo consideriamo che gli Archea siano più vicini agli eucarioti che agli
+                eubatteri sull'albero filogenetico della vita?</div>
+            <div class="question">Per quale motivo consideriamo che gli Archea siano più vicini agli eucarioti che agli
+                eubatteri sull'albero filogenetico della vita?</div>
+            <div class="answer">Gli Archea sono considerati più vicini agli eucarioti perché condividono con essi
+                diverse
+                caratteristiche molecolari, come la presenza di introni in alcuni geni e meccanismi di trascrizione e
+                traduzione
+                molto simili. Inoltre, la composizione della loro membrana cellulare è diversa da quella dei batteri e
+                risulta
+                più affine a quella degli eucarioti.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Per quale motivo i beta-lattamici sono più attivi sui batteri gram positivi che sui
+                gram
+                negativi?</div>
+            <div class="question">Per quale motivo i beta-lattamici sono più attivi sui batteri gram positivi che sui
+                gram
+                negativi?</div>
+            <div class="answer">I beta-lattamici (es. la penicillina) sono più efficaci sui batteri Gram positivi perché
+                hanno
+                la parete cellulare molto spessa e costituita quasi interamente da peptidoglicano, che è il loro
+                bersaglio
+                d’azione. Questi antibiotici bloccano gli enzimi che costruiscono il peptidoglicano, indebolendo la
+                parete e
+                causando la lisi della cellula. Nei Gram negativi invece il peptidoglicano è molto più sottile ed è
+                protetto da
+                una membrana esterna, che limita la penetrazione del farmaco.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Per quale motivo il gene del citocromo c è stato abbandonato come marcatore per la
+                distanza
+                genetica a favore dell' rRNA 16S?</div>
+            <div class="question">Per quale motivo il gene del citocromo c è stato abbandonato come marcatore per la
+                distanza
+                genetica a favore dell' rRNA 16S?</div>
+            <div class="answer">Il gene 16S rRNA è presente in tutti i procarioti, ha regioni altamente conservate e
+                altre
+                variabili utili per distinguere le specie. È più adatto del citocromo c per ricostruire relazioni
+                filogenetiche
+                nei batteri.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Perché i micoplasmi sono batteri pleomorfi?</div>
+            <div class="question">Perché i micoplasmi sono batteri pleomorfi?</div>
+            <div class="answer">I micoplasmi sono batteri pleomorfi, cioè con forme variabili, perché non possiedono una
+                parete
+                cellulare che serve a mantenere una forma stabile. Negli altri batteri la parete formata da
+                peptidoglicano
+                mantiene la forma stabile ma nei micoplasmi questa struttura manca quindi la loro membrana può cambiare
+                forma a
+                seconda delle condizioni. Questa caratteristica gli permette di essere resistenti ad antibiotici che
+                agiscono
+                sulla parete come i B-lattamici (es.penicillina).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-q">Qual è il meccanismo d'azione di aciclovir?</div>
+            <div class="question">Qual è il meccanismo d'azione di aciclovir?</div>
+            <div class="answer">L’aciclovir è un antivirale efficace contro i virus erpetici (Herpes simplex 1 e 2,
+                Varicella-Zoster).Entra nelle cellule infettate e viene attivato dalla timidina chinasi virale, un
+                enzima
+                presente solo in queste cellule.Una volta fosforilato, si trasforma nella sua forma attiva (aciclovir
+                trifosfato), che imita un nucleotide del DNA. La DNA polimerasi virale lo incorpora nella catena del
+                DNA, ma
+                poiché manca del gruppo -OH, la sintesi si blocca e la replicazione virale viene interrotta.È un farmaco
+                selettivo, perché agisce quasi esclusivamente sulle cellule infettate, limitando la tossicità per quelle
+                sane.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Qual è il ruolo dei piridin nucleotidi nel metabolismo?</div>
+            <div class="question">Qual è il ruolo dei piridin nucleotidi nel metabolismo?</div>
+            <div class="answer">I nucleotidi piridinici (NAD⁺, NADP⁺) agiscono come trasportatori di elettroni,
+                facilitando le
+                reazioni di ossidoriduzione. Sono fondamentali nel catabolismo (NAD⁺) e nell’anabolismo (NADPH).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Qual è il sistema utilizzato da Trypanosoma brucei per eludere le difese immunitarie
+                dell'ospite?</div>
+            <div class="question">Qual è il sistema utilizzato da Trypanosoma brucei per eludere le difese immunitarie
+                dell'ospite?</div>
+            <div class="answer">Utilizza la variazione antigenica, cioè cambia ripetutamente le proteine di superficie
+                (VSG) per
+                non essere riconosciuto dal sistema immunitario.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Qual è la differenza tra fotosintesi ossigenica e anossigenica?</div>
+            <div class="question">Qual è la differenza tra fotosintesi ossigenica e anossigenica?</div>
+            <div class="answer">La fotosintesi ossigenica utilizza H₂O come donatore di elettroni e libera ossigeno (O₂)
+                come
+                prodotto. La fotosintesi anossigenica, invece, usa altri composti come H₂S al posto dell’acqua e non
+                produce
+                ossigeno.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Qual è la differenza tra resistenza intrinseca ed estrinseca?</div>
+            <div class="question">Qual è la differenza tra resistenza intrinseca ed estrinseca?</div>
+            <div class="answer">La resistenza intrinseca è naturale e geneticamente determinata: il batterio è sempre
+                insensibile a un certo antibiotico perché manca del bersaglio, possiede una barriera impermeabile o
+                pompe di
+                efflusso. La resistenza estrinseca (acquisita), invece, si sviluppa nel tempo a causa di mutazioni o
+                acquisizione di geni da altri batteri tramite plasmidi, trasformazione, trasduzione o coniugazione.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Qual è la differenza tra traduzione generalizzata e specializzata?</div>
+            <div class="question">Qual è la differenza tra traduzione generalizzata e specializzata?</div>
+            <div class="answer">La trasduzione è un meccanismo di trasferimento genico tra batteri mediato da un
+                batteriofago.
+                Nella trasduzione generalizzata, un fago può trasferire qualunque frammento del DNA batterico, perché
+                durante
+                l’assemblaggio virale può incorporare casualmente pezzi di DNA dell’ospite. Nella trasduzione
+                specializzata,
+                invece, vengono trasferiti solo geni specifici che si trovano vicino al sito di integrazione del profago
+                nel
+                cromosoma batterico: avviene infatti con fagi temperati che si integrano nel DNA dell’ospite e, quando
+                si
+                staccano, portano con sé quei geni adiacenti.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Qual è la funzione del quorum sensing nel biofilm?</div>
+            <div class="question">Qual è la funzione del quorum sensing nel biofilm?</div>
+            <div class="answer">Regola l’espressione genica in modo coordinato tra batteri, attivando la produzione di
+                sostanze
+                adesive quando la densità cellulare è elevata.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Qual è stato il cambiamento più grande avvenuto sulla terra a causa del metabolismo
+                microbico
+                e come ha influenzato l'evoluzione della vita e la colonizzazione delle terre emerse?</div>
+            <div class="question">Qual è stato il cambiamento più grande avvenuto sulla terra a causa del metabolismo
+                microbico
+                e come ha influenzato l'evoluzione della vita e la colonizzazione delle terre emerse?</div>
+            <div class="answer">La fotosintesi ossigenica ha prodotto ossigeno libero, trasformando l’atmosfera e
+                rendendo
+                possibile la respirazione aerobica e la vita multicellulare sulla terraferma.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quale potrebbe essere una spiegazione sensata per le differenze nella composizione
+                della
+                membrana degli archea e degli eubatteri?</div>
+            <div class="question">Quale potrebbe essere una spiegazione sensata per le differenze nella composizione
+                della
+                membrana degli archea e degli eubatteri?</div>
+            <div class="answer">Una spiegazione è che le differenze nella composizione della membrana tra archea ed
+                eubatteri
+                siano il risultato di un’adattamento evolutivo ai loro ambienti di vita. Gli archea vivono spesso in
+                condizioni
+                estreme di temperatura e per questo la loro membrana contiene lipidi uniti da legami etere invece che
+                estere,
+                come negli eubatteri. I legami etere sono più stabili al calore e alle variazioni di pH, permettendo
+                alla
+                cellula di resistere meglio in ambienti estremi. Negli eubatteri invece i legami estere sono sufficienti
+                per
+                ambienti più miti, dove non servono membrane così resistenti.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quale situzione neturale simula la crescita in batch. Spiega come mai?</div>
+            <div class="question">Quale situzione neturale simula la crescita in batch. Spiega come mai?</div>
+            <div class="answer">La decomposizione di materiale organico in natura: inizialmente i batteri crescono
+                velocemente,
+                poi rallentano per mancanza di nutrienti, infine muoiono.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quale virus causa la mononucleosi infettiva e quale patologia può determinare la sua
+                riattivazione?</div>
+            <div class="question">Quale virus causa la mononucleosi infettiva e quale patologia può determinare la sua
+                riattivazione?</div>
+            <div class="answer">La mononucleosi infettiva è causata dal virus di Epstein-Barr (EBV), appartenente alla
+                famiglia
+                degli Herpesvirus. Dopo l’infezione primaria, il virus rimane latente nei linfociti B e può riattivarsi
+                in
+                situazioni di immunodepressione. La riattivazione può favorire l’insorgenza di patologie tumorali, come
+                il
+                linfoma di Burkitt o il carcinoma nasofaringeo.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali caratteristiche deve avere un farmaco antivirale?</div>
+            <div class="question">Quali caratteristiche deve avere un farmaco antivirale?</div>
+            <div class="answer">Un farmaco antivirale deve essere specifico per enzimi o proteine virali, in modo da
+                bloccare la
+                replicazione del virus senza danneggiare le cellule dell’organismo ospite. Deve essere ben tollerato
+                (cioè avere
+                bassa tossicità), risultare efficace soprattutto nelle fasi precoci dell’infezione e contribuire a
+                ridurre la
+                carica virale e la diffusione dell’infezione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono e caratteristiche peculiari degli organismi osmofili. Dove possiamo
+                trovarli?</div>
+            <div class="question">Quali sono e caratteristiche peculiari degli organismi osmofili. Dove possiamo
+                trovarli?</div>
+            <div class="answer">Gli organismi omofili vivono in ambienti con alta concentrazione di zuccheri o sali.
+                Hanno
+                adattamenti per evitare la perdita d’acqua. Si trovano in miele, marmellate, sciroppi.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono i bersagli della tiìossicità selettiva degli antibiotici?</div>
+            <div class="question">Quali sono i bersagli della tiìossicità selettiva degli antibiotici?</div>
+            <div class="answer">I bersagli sono strutture presenti nei batteri ma assenti nelle cellule umane, così da
+                colpire
+                solo il microrganismo. I principali sono: Parete cellulare (es. peptidoglicano, bersaglio dei
+                β-lattamici).
+                Ribosomi 70S. Sintesi del DNA e RNA. Sintesi di folati.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono i criteri comunemente usati per la classificazione dei batteri?</div>
+            <div class="question">Quali sono i criteri comunemente usati per la classificazione dei batteri?</div>
+            <div class="answer">La classificazione dei batteri si basa su caratteristiche morfologiche, come forma
+                (cocchi,
+                bacilli, spirilli) e colorazione di Gram (Gram+ o Gram–), su caratteristiche fisiologiche e metaboliche
+                (uso
+                dell’ossigeno, fermentazione, produzione di enzimi) e su criteri genetici, come la sequenza del gene 16S
+                rRNA,
+                che permette di stabilire le relazioni evolutive tra le specie.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono i due modelli di replicazione degli elementi genetici circolari?</div>
+            <div class="question">Quali sono i due modelli di replicazione degli elementi genetici circolari?</div>
+            <div class="answer">Sono: 1) Replicazione a forcella bidirezionale (come nei cromosomi); 2) Replicazione a
+                cerchio
+                rotante (tipica dei plasmidi coniugativi).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono i fattori responsabili della virulenza di un batterio?</div>
+            <div class="question">Quali sono i fattori responsabili della virulenza di un batterio?</div>
+            <div class="answer">I fattori di virulenza permettono a un batterio di infettare l’ospite e provocare
+                malattia.<br>Possono includere: Adesine, che favoriscono l’adesione alle cellule dell’ospite. Capsula,
+                che
+                protegge il batterio dalla fagocitosi. Enzimi che danneggiano i tessuti. Tossine (esotossine ed
+                endotossine) che
+                alterano le funzioni cellulari.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono i metodi diretti per la misurazione della crescita batterica?</div>
+            <div class="question">Quali sono i metodi diretti per la misurazione della crescita batterica?</div>
+            <div class="answer">I metodi diretti per misurare la crescita batterica contano direttamente le cellule
+                presenti in
+                un campione. I principali sono: la conteggio microscopico con camera di Burker o Neubauer, il conteggio
+                su
+                piastra (diluizioni e semina per contare le colonie vive) e la filtrazione su membrana per i liquidi con
+                pochi
+                batteri.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono i metodi indiretti per la misurazione della crescita batterica?</div>
+            <div class="question">Quali sono i metodi indiretti per la misurazione della crescita batterica?</div>
+            <div class="answer">Misura della torbidità (densità ottica); Misura del consumo di nutrienti; Misura della
+                produzione di metaboliti.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono i peincipali meccansimi di resistenza?</div>
+            <div class="question">Quali sono i peincipali meccansimi di resistenza?</div>
+            <div class="answer">I principali meccanismi di resistenza agli antibiotici permettono ai batteri di
+                sopravvivere e
+                continuare a moltiplicarsi nonostante la presenza del farmaco. I più importanti sono: Inattivazione
+                dell’antibiotico mediante enzimi che lo degradano o lo modificano (es. beta-lattamasi contro
+                penicilline).
+                Alterazione del bersaglio: il batterio modifica la molecola bersaglio dell’antibiotico, che non può più
+                legarsi
+                (es. mutazioni nella RNA polimerasi o nei ribosomi). Riduzione della permeabilità della membrana, che
+                impedisce
+                l’ingresso del farmaco.Efflusso attivo, cioè l’espulsione dell’antibiotico tramite pompe di efflusso.
+                Vie
+                metaboliche alternative, che bypassano l’azione del farmaco (es. resistenza alle sulfonamidi).</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono i postulati di Koch e cosa dimostrano?</div>
+            <div class="question">Quali sono i postulati di Koch e cosa dimostrano?</div>
+            <div class="answer">I postulati di Koch sono quattro regole che servono a dimostrare il legame tra un
+                microrganismo
+                e una malattia. 1) Il microrganismo è presente negli individui malati e assente nei sani. 2) Va isolato
+                e
+                coltivato in purezza. 3) Deve causare la malattia se inoculato in un soggetto sano. 4) Deve essere
+                nuovamente
+                isolato dal soggetto infettato. Questi postulati dimostrano quindi che un microrganismo specifico è la
+                causa di
+                una determinata malattia infettiva.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono i principali metodi di sterilizzazione?</div>
+            <div class="question">Quali sono i principali metodi di sterilizzazione?</div>
+            <div class="answer">I principali metodi di sterilizzazione servono a eliminare tutti i microrganismi,
+                comprese le
+                spore, da materiali e superfici.Si dividono in metodi fisici e chimici. Tra i metodi fisici, i più usati
+                sono:
+                autoclave a 121 °C per 15–20 minuti, che denatura le proteine e distrugge le spore. Calore seccostufa a
+                160–180
+                °C per 2 ore, adatto per vetro e strumenti metallici. Filtrazione, per liquidi o gas termolabili.
+                Radiazioni (UV
+                o ionizzanti), che danneggiano il DNA. Tra i metodi chimici, si usano ossido di etilene, formaldeide o
+                perossido
+                di idrogeno, efficaci per materiali sensibili al calore.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono le caratteristiche dei ceppi HFR?</div>
+            <div class="question">Quali sono le caratteristiche dei ceppi HFR?</div>
+            <div class="answer">Sono ceppi in cui il plasmide F è integrato nel cromosoma. Trasferiscono parte del
+                cromosoma
+                durante la coniugazione.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono le caratteristiche delle spore batteriche?</div>
+            <div class="question">Quali sono le caratteristiche delle spore batteriche?</div>
+            <div class="answer">Le spore batteriche sono forme di resistenza prodotte da alcuni batteri (es. Bacillus e
+                Clostridium) in condizioni ambientali sfavorevoli. Sono cellule dormienti, cioè metabolicamente
+                inattive, ma
+                estremamente resistenti al calore, alla disidratazione, ai raggi UV e ai disinfettanti. Questa
+                resistenza è
+                dovuta alla presenza di pareti spesse, al rivestimento proteico e all’acido dipicolinico.Quando le
+                condizioni
+                tornano favorevoli, la spora germina, ridando origine alla forma vegetativa del batterio</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono le caratteristiche nutrizionali di un organismo mixotrofo?</div>
+            <div class="question">Quali sono le caratteristiche nutrizionali di un organismo mixotrofo?</div>
+            <div class="answer">Un organismo mixotrofo può usare sia fonti organiche che inorganiche di carbonio ed
+                energia.
+                Alterna modalità eterotrofe e autotrofe in base all’ambiente.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono le differenze tra endotossine ed esotossine?</div>
+            <div class="question">Quali sono le differenze tra endotossine ed esotossine?</div>
+            <div class="answer">Le esotossine sono proteine secrete attivamente dai batteri, soprattutto Gram-positivi,
+                e sono
+                altamente tossiche anche a basse dosi. Agiscono in modo specifico su determinate cellule bersaglio,
+                interferendo
+                con funzioni vitali dell’organismo. Inoltre, possono essere rese innocue e utilizzate per la produzione
+                di
+                vaccini (anatossine). Le endotossine, invece, sono lipopolisaccaridi (LPS) presenti nella membrana
+                esterna dei
+                batteri Gram-negativi. Non vengono secrete, ma rilasciate solo quando il batterio si rompe o muore.
+                Hanno
+                un’azione meno specifica, ma provocano forti reazioni infiammatorie, come febbre e infiammazione
+                sistemica. A
+                differenza delle esotossine, non possono essere impiegate per creare vaccini.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Quali sono le differenze tra le pareti di Gram positivi e Gram negativi?</div>
+            <div class="question">Quali sono le differenze tra le pareti di Gram positivi e Gram negativi?</div>
+            <div class="answer">I Gram+ hanno una parete più semplice ma più spessa, con un ruolo chiave nel mantenere
+                la forma
+                e resistere alla pressione osmotica con uno spesso strato di peptidoglicano con acidi teicoici, senza
+                membrana
+                esterna. I Gram- hanno una parete più complessa, con una barriera esterna (LPS) che li rende più
+                resistenti agli
+                antibiotici e alle sostanze chimiche. Uno strato sottile di peptidoglicano e un spazio periplasmico.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question" id="letter-s">Scrivere la definizione biologica di specie e spiegare perché non si
+                adatta ai
+                procarioti?</div>
+            <div class="question">Scrivere la definizione biologica di specie e spiegare perché non si adatta ai
+                procarioti?
+            </div>
+            <div class="answer">In biologia, una specie è un gruppo di individui che possono incrociarsi tra loro e
+                generare
+                prole fertile.Questa definizione non vale per i procarioti, che si riproducono solo per via asessuata e
+                possono
+                scambiarsi geni tra specie diverse.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Scrivi in quali categorie è possibile suddividere i batteri sulla base delle richieste
+                di
+                ossigeno?</div>
+            <div class="question">Scrivi in quali categorie è possibile suddividere i batteri sulla base delle richieste
+                di
+                ossigeno?</div>
+            <div class="answer">Aerobi obbligati, che necessitano di ossigeno; Anaerobi obbligati, che muoiono in
+                presenza di
+                ossigeno; Anaerobi facoltativi, che crescono sia con che senza ossigeno; Microaerofili, che richiedono
+                basse
+                concentrazioni di ossigeno; Anaerobi aerotolleranti, che non usano ossigeno ma lo tollerano.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Spiega la differenza tra immunità innata e acquisita?</div>
+            <div class="question">Spiega la differenza tra immunità innata e acquisita?</div>
+            <div class="answer">L’immunità innata è la prima forma di difesa dell’organismo, presente fin dalla nascita.
+                È una
+                risposta immediata e non specifica, cioè reagisce allo stesso modo contro qualsiasi microrganismo che
+                entri nel
+                corpo. Anche se è molto rapida, non ha la capacità di “ricordare” i patogeni incontrati. L’immunità
+                acquisita
+                invece si sviluppa solo dopo l’esposizione a un determinato agente patogeno o a un vaccino. È una
+                risposta più
+                lenta all’inizio, ma molto specifica: riconosce un particolare antigene e produce anticorpi mirati
+                grazie
+                all’azione dei linfociti B e T. Lascia una memoria immunologica, permettendo al sistema immunitario di
+                reagire
+                più rapidamente e in modo più efficace se lo stesso patogeno viene incontrato di nuovo.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Spiega le differenze nella composizione della membrana di clamidie e micoplasmi
+                rispetto agli
+                altri eubatteri?</div>
+            <div class="question">Spiega le differenze nella composizione della membrana di clamidie e micoplasmi
+                rispetto agli
+                altri eubatteri?</div>
+            <div class="answer">Le clamidie e i micoplasmi presentano differenze importanti nella membrana cellulare
+                rispetto
+                agli altri eubatteri. Le clamidie possiedono una parete molto sottile, priva di peptidoglicano, ma
+                contengono
+                proteine che ne mantengono la forma. I micoplasmi invece non hanno la parete cellulare e sono rivestiti
+                solo da
+                una membrana plasmatica ricca di steroli, che la rende più resistente. Negli altri eubatteri la presenza
+                di
+                peptidoglicano nella parete è fondamentale per dare rigidità e forma stabile alla cellula.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Spiegare cos'è un regulone, fare un esempio sottolineandone l'utilità?</div>
+            <div class="question">Spiegare cos'è un regulone, fare un esempio sottolineandone l'utilità?</div>
+            <div class="answer">Un regulone è un insieme di geni regolati da uno stesso fattore. Es. il regulone SOS
+                attiva geni
+                per la riparazione del DNA danneggiato.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Spiegare la differenza tra microscopia ottica ed elettronica?</div>
+            <div class="question">Spiegare la differenza tra microscopia ottica ed elettronica?</div>
+            <div class="answer">La microscopia ottica utilizza la luce visibile per ingrandire i campioni, permette di
+                osservare
+                cellule e batteri, anche vivi o colorati, ma ha un limite di risoluzione di circa 0,2 micrometri. La
+                microscopia
+                elettronica invece impiega un fascio di elettroni e permette di vedere dettagli molto più piccoli, come
+                virus e
+                molecole perchè ha un potere di risoluzione maggiore ma richiede preparazioni più complesse e campioni
+                non vivi.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Spiegare la differenza tra un antibiotico batteriostatico e un antibiotico
+                battericida?</div>
+            <div class="question">Spiegare la differenza tra un antibiotico batteriostatico e un antibiotico
+                battericida?</div>
+            <div class="answer">Un antibiotico batteriostatico blocca la crescita e la riproduzione dei batteri, ma non
+                li
+                uccide direttamente. Questo consente al sistema immunitario dell’ospite di eliminare l’infezione.
+                Esempi:
+                tetracicline, cloramfenicolo. Un antibiotico battericida uccide direttamente i batteri, provocando la
+                loro lisi
+                o interferendo con funzioni vitali. È particolarmente utile in pazienti immunocompromessi. Esempi:
+                penicilline,
+                chinoloni.</div>
+        </div>
+
+
+
+        <!-- Aggiungi qui le altre risposte -->
+    </div>
+
+    <!-- Pulsante per tornare alla Index -->
+    <button id="back-button">C</button>
+
+    <!-- Barra di Ricerca a Scomparsa nell'Angolo in Basso a Destra -->
+    <div class="search-bar-container">
+        <button id="search-toggle">&#128269;</button>
+        <div id="search-bar" class="hidden">
+            <input type="text" id="search-input" placeholder="Cerca una risposta...">
+        </div>
+    </div>
+
+    <script>
+        // Toggle visibilità della barra di ricerca
+        document.getElementById('search-toggle').addEventListener('click', function () {
+            const searchBar = document.getElementById('search-bar');
+            searchBar.classList.toggle('hidden');
+        });
+
+        // Funzionalità di ricerca
+        document.getElementById('search-input').addEventListener('input', function () {
+            const searchQuery = this.value.toLowerCase();
+            const answerItems = document.querySelectorAll('.answer-item');
+
+            answerItems.forEach(item => {
+                const answerText = item.innerText.toLowerCase();
+
+                if (answerText.includes(searchQuery)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        });
+
+        // Pulsante per tornare alla Index
+        document.getElementById('back-button').addEventListener('click', function () {
+            window.location.href = 'index.html';
+        });
+
+        // Assegna automaticamente gli ID alle risposte (opzionale)
+        (function () {
+            const answerItems = document.querySelectorAll('.answer-item');
+            const lettersFound = {};
+
+            answerItems.forEach(answer => {
+                const firstLetter = answer.innerText.trim().charAt(0).toUpperCase();
+                if (!lettersFound[firstLetter]) {
+                    lettersFound[firstLetter] = true;
+                    answer.id = 'letter-' + firstLetter;
+                }
+            });
+        })();
+    </script>
+
+</body>
+
+</html>
